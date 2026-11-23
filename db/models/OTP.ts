@@ -13,7 +13,7 @@ export const OTP_TTL_MINUTES = 5;
 export const OTP_MAX_ATTEMPTS = 5;
 export const OTP_RESEND_COOLDOWN_SECONDS = 60;
 
-export type OtpPurpose = "login" | "verify_phone";
+export type OtpPurpose = "login" | "verify_phone" | "maintenance";
 
 export interface IOtp {
   phone: string;
@@ -77,7 +77,7 @@ const OtpSchema = new Schema<IOtpDocument, IOtpModel>(
     codeHash: { type: String, required: true, select: false },
     purpose: {
       type: String,
-      enum: ["login", "verify_phone"],
+      enum: ["login", "verify_phone", "maintenance"],
       default: "login",
     },
     attempts: { type: Number, default: 0 },

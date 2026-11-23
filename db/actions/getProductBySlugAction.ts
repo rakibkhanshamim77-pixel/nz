@@ -355,6 +355,7 @@ async function getProductReviews(
       Review.find(match)
         .sort({ createdAt: -1 })
         .limit(Math.min(Math.max(1, limit), 24))
+        .select("customerName avatarColor badge rating comment storeReply isVerifiedPurchase createdAt")
         .lean(),
       Review.aggregate<{ _id: number; count: number }>([
         { $match: match },
@@ -426,6 +427,7 @@ async function getRelatedProducts(
       })
         .sort({ createdAt: -1 })
         .limit(max * 2) // a little extra in case some are hidden
+        .select("name slug images regularPrice salePrice discount isActive publishAt")
         .lean<RawDoc[]>()
         .exec();
       results.push(...sameCategory.filter(isVisible).slice(0, max));
@@ -436,6 +438,7 @@ async function getRelatedProducts(
       const more = await Product.find({ _id: { $nin: excludeIds } })
         .sort({ createdAt: -1 })
         .limit((max - results.length) * 2)
+        .select("name slug images regularPrice salePrice discount isActive publishAt")
         .lean<RawDoc[]>()
         .exec();
       results.push(...more.filter(isVisible).slice(0, max - results.length));

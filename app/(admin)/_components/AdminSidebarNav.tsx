@@ -37,10 +37,12 @@ export default function AdminSidebarNav({
   const canUsers = can("user_management");
   const canCustomers = can("customers_management");
   const canInbox = can("inbox_management");
+  const canContact = can("contact_management");
   const canContent = can("content_management");
   const canReviews = can("review_management");
   const canCoupons = can("coupon_management");
   const canSettings = can("settings");
+  const canNotifications = can("notifications");
 
   const onProductList =
     pathname === "/admin/products" || pathname.startsWith("/admin/products/edit/");
@@ -69,8 +71,8 @@ export default function AdminSidebarNav({
     pathname.startsWith("/admin/products") || pathname.startsWith("/admin/categories");
   const usersOpen = pathname.startsWith("/admin/users");
 
-  const showEngage = canInbox || canContent || canReviews;
-  const showSystem = canUsers || canContent || canSettings || canCoupons;
+  const showEngage = canInbox || canContact || canContent || canReviews;
+  const showSystem = canUsers || canContent || canSettings || canCoupons || canNotifications;
 
   return (
     <nav className="flex-1 overflow-y-auto px-3 pb-4" aria-label="Admin menu">
@@ -296,6 +298,23 @@ export default function AdminSidebarNav({
           Messages
         </Link>
       )}
+      {canContact && (
+        <Link
+          href="/admin/contact"
+          aria-current={matchPath("/admin/contact", pathname) ? "page" : undefined}
+        >
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            viewBox="0 0 24 24"
+          >
+            <path d="M3 8l7.89 5.26a2 2 0 0 0 2.22 0L21 8M5 19h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2z" />
+          </svg>
+          Contact
+        </Link>
+      )}
       {canReviews && (
         <Link
           href="/admin/reviews"
@@ -428,6 +447,23 @@ export default function AdminSidebarNav({
             <path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" />
           </svg>
           Settings
+        </Link>
+      )}
+      {canNotifications && (
+        <Link
+          href="/admin/notifications"
+          aria-current={matchPath("/admin/notifications", pathname) ? "page" : undefined}
+        >
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            viewBox="0 0 24 24"
+          >
+            <path d="M6 9a6 6 0 0 1 12 0c0 6 2 7 2 7H4s2-1 2-7M10 20a2 2 0 0 0 4 0" />
+          </svg>
+          Notifications
         </Link>
       )}
     </nav>

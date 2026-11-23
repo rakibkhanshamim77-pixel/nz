@@ -57,7 +57,7 @@ export default function MainError({
         </button>
         <Link
           href="/"
-          className="h-12 px-7 rounded-2xl border border-line font-semibold hover:bg-soft inline-flex items-center transition-colors"
+          className=" px-7 rounded-2xl border border-line font-semibold hover:bg-soft inline-flex items-center transition-colors"
         >
           হোমে ফিরুন
         </Link>

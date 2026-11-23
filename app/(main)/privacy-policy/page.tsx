@@ -1,3 +1,6 @@
+// Pure SSG — static content, no DB calls, no revalidation needed
+export const revalidate = false;
+
 import type { Metadata } from "next";
 import PrivacyBreadcrumb from "./_components/PrivacyBreadcrumb";
 import PrivacyHeader from "./_components/PrivacyHeader";
@@ -5,8 +8,9 @@ import PrivacySections from "./_components/PrivacySections";
 import PrivacyContact from "./_components/PrivacyContact";
 
 export const metadata: Metadata = {
-  title: "প্রাইভেসি পলিসি – Neeshanz",
-  description: "Neeshanz-এর প্রাইভেসি পলিসি — আপনার তথ্য কীভাবে সংগ্রহ, ব্যবহার ও সুরক্ষিত রাখা হয়।",
+  title: "Privacy Policy – Neeshanz",
+  description: "Read Neeshanz's privacy policy — how we collect, use and protect your personal information.",
+  alternates: { canonical: "/privacy-policy" },
 };
 
 export default function PrivacyPolicyPage() {

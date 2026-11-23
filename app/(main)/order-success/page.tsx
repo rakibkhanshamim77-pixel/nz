@@ -1,6 +1,9 @@
 import Link from "next/link";
 
-export const metadata = { title: "অর্ডার সফল — Neeshanz" };
+export const metadata = {
+  title: "Order Confirmed – Neeshanz",
+  robots: { index: false, follow: false },
+};
 
 interface Props {
   searchParams: { order?: string };

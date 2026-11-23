@@ -10,6 +10,9 @@ interface ProductJsonLdProps {
 export default function ProductJsonLd({ product, reviewSummary, url }: ProductJsonLdProps) {
   const inStock = product.sizes.length > 0 ? product.sizes.some((s) => s.stock > 0) : product.stock > 0;
 
+  const base = process.env.NEXT_PUBLIC_SITE_URL || "https://neeshanz.com";
+  const absoluteUrl = url.startsWith("http") ? url : `${base}${url}`;
+
   const data = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -17,10 +20,11 @@ export default function ProductJsonLd({ product, reviewSummary, url }: ProductJs
     description: product.description,
     image: product.images,
     sku: product._id,
+    brand: { "@type": "Brand", name: "Neeshanz" },
     ...(product.category ? { category: product.category.name } : {}),
     offers: {
       "@type": "Offer",
-      url,
+      url: absoluteUrl,
       priceCurrency: "BDT",
       price: product.salePrice,
       availability: inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",

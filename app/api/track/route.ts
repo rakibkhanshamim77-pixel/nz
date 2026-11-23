@@ -71,11 +71,17 @@ export async function GET(req: NextRequest) {
   const phone       = req.nextUrl.searchParams.get("phone")?.trim();
   const orderNumber = req.nextUrl.searchParams.get("orderNumber")?.trim().toUpperCase();
 
-  if (!phone) return NextResponse.json({ error: "invalid" }, { status: 400 });
+  if (!phone && !orderNumber) return NextResponse.json({ error: "invalid" }, { status: 400 });
 
-  const normalizedPhone = normPhone(phone);
+  const normalizedPhone = phone ? normPhone(phone) : null;
 
-  /* Demo */
+  /* Demo — orderNumber-only lookup */
+  if (!normalizedPhone && orderNumber) {
+    const o = DEMO_ORDERS.find(d => d.orderNumber === orderNumber);
+    return o ? NextResponse.json({ orders: [o] }) : NextResponse.json({ error: "notfound" }, { status: 404 });
+  }
+
+  /* Demo — phone lookup */
   if (normalizedPhone === "01712345678") {
     if (orderNumber) {
       const o = DEMO_ORDERS.find(d => d.orderNumber === orderNumber);
@@ -87,7 +93,8 @@ export async function GET(req: NextRequest) {
   try {
     await dbConnect();
 
-    const filter: Record<string, unknown> = { "customer.phone": { $regex: normalizedPhone, $options: "i" } };
+    const filter: Record<string, unknown> = {};
+    if (normalizedPhone) filter["customer.phone"] = { $regex: normalizedPhone, $options: "i" };
     if (orderNumber) filter.orderNumber = orderNumber;
 
     const docs = await Order.find(filter)

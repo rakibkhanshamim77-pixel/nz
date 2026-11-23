@@ -22,6 +22,8 @@ const SettingsSchema = new Schema<ISettings>(
     delivery: { type: Schema.Types.Mixed, default: {} },
     payments: { type: Schema.Types.Mixed, default: {} },
     inventory: { type: Schema.Types.Mixed, default: {} },
+    contact: { type: Schema.Types.Mixed, default: {} },
+    maintenance: { type: Schema.Types.Mixed, default: {} },
     updatedBy: { type: Schema.Types.ObjectId, ref: "User", default: null },
   },
   { timestamps: true },

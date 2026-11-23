@@ -99,7 +99,7 @@ export default function AccountAddresses({ addresses }: { addresses: AccountAddr
   }
 
   return (
-    <section id="addresses" className="card p-5 sm:p-7">
+    <section id="addresses" className="card p-4 sm:p-7">
       <div className="flex items-center justify-between gap-3 mb-5">
         <h2 className="font-display font-bold text-xl">সংরক্ষিত ঠিকানা</h2>
         <button

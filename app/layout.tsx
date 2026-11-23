@@ -1,19 +1,49 @@
 import type { Metadata } from "next";
-import { Bricolage_Grotesque, Noto_Sans_Bengali } from "next/font/google";
+import localFont from "next/font/local";
 import CartProvider from "@/lib/CartProvider";
 import ToastProvider from "@/lib/ToastProvider";
 import "./globals.css";
 
-const bricolage = Bricolage_Grotesque({
-  subsets: ["latin"],
-  weight: ["500", "700", "800"],
+const bricolage = localFont({
+  src: [
+    {
+      path: "./fonts/bricolage-vietnamese.woff2",
+      weight: "500 800",
+      style: "normal",
+    },
+    {
+      path: "./fonts/bricolage-latin-ext.woff2",
+      weight: "500 800",
+      style: "normal",
+    },
+    {
+      path: "./fonts/bricolage-latin.woff2",
+      weight: "500 800",
+      style: "normal",
+    },
+  ],
   variable: "--font-bricolage",
   display: "swap",
 });
 
-const notoBengali = Noto_Sans_Bengali({
-  subsets: ["bengali", "latin"],
-  weight: ["400", "500", "600", "700"],
+const notoBengali = localFont({
+  src: [
+    {
+      path: "./fonts/noto-bengali-bengali.woff2",
+      weight: "400 700",
+      style: "normal",
+    },
+    {
+      path: "./fonts/noto-bengali-latin-ext.woff2",
+      weight: "400 700",
+      style: "normal",
+    },
+    {
+      path: "./fonts/noto-bengali-latin.woff2",
+      weight: "400 700",
+      style: "normal",
+    },
+  ],
   variable: "--font-bengali",
   display: "swap",
 });
@@ -41,18 +71,20 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || ""),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "https://neeshanz.com",
+  ),
   alternates: {
     canonical: "/",
   },
   openGraph: {
     type: "website",
-    locale: "bn_BD",
+    locale: "en_BD",
     url: "/",
     siteName: "Neeshanz",
     title: "Neeshanz - Next Level Tees",
     description:
-      "Shop Neeshanz for trendy fashion, stylish clothing, and everyday comfort. Discover quality outfits that combine modern style, affordability, and comfort. Free delivery available.",
+      "Discover premium T-shirts that blend modern style, comfort & confidence. Upgrade your everyday look with Neeshanz.",
     images: [
       {
         url: "/og-image.png",
@@ -65,7 +97,8 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Neeshanz - Next Level Tees",
-    description: "Premium quality t-shirts with modern designs.",
+    description:
+      "Discover premium T-shirts that blend modern style, comfort & confidence. Upgrade your everyday look with Neeshanz.",
     images: ["/og-image.png"],
   },
   robots: {
@@ -129,6 +162,9 @@ export default function RootLayout({
   return (
     <html lang="bn">
       <head>
+        {/* Preconnect to the image CDN so LCP images start loading sooner */}
+        <link rel="preconnect" href="https://i.ibb.co" />
+        <link rel="dns-prefetch" href="https://i.ibb.co" />
         <script
           dangerouslySetInnerHTML={{
             __html: `try{var t=localStorage.getItem('theme');if(t==='dark')document.documentElement.dataset.theme='dark';else if(t==='light')delete document.documentElement.dataset.theme;}catch(e){}`,

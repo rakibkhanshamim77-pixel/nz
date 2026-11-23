@@ -1,3 +1,9 @@
+// ISR: serve from cache, regenerate in background after 5 min.
+// Admin product/review actions call revalidatePath("/", "layout") for instant invalidation.
+export const revalidate = 300;
+// New products created after build are rendered on first request, then cached.
+export const dynamicParams = true;
+
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
@@ -19,6 +25,23 @@ import {
   getProductReviews,
   getRelatedProducts,
 } from "@/db/actions/getProductBySlugAction";
+import dbConnect from "@/db/connect/dbConnect";
+import Product from "@/db/models/Product";
+import { publishedProductFilter } from "@/db/utils/productVisibility";
+
+/** Pre-build all published product slugs so they ship as static HTML. */
+export async function generateStaticParams() {
+  try {
+    await dbConnect();
+    const products = await Product.find(publishedProductFilter())
+      .select("slug")
+      .lean<{ slug: string }[]>()
+      .exec();
+    return products.filter((p) => p.slug).map((p) => ({ slug: p.slug }));
+  } catch {
+    return [];
+  }
+}
 
 interface ProductPageProps {
   params: { slug: string };
@@ -27,22 +50,39 @@ interface ProductPageProps {
 // generateMetadata and the page both need the product — cache() makes it one DB query per request
 const loadProduct = cache((slug: string) => getProductBySlug(slug));
 
+function truncateAtWord(text: string, max: number): string {
+  if (text.length <= max) return text;
+  const cut = text.lastIndexOf(" ", max - 1);
+  return cut > 0 ? text.slice(0, cut) + "…" : text.slice(0, max) + "…";
+}
+
 export async function generateMetadata({
   params,
 }: ProductPageProps): Promise<Metadata> {
   const product = await loadProduct(params.slug);
-  if (!product) return { title: "পণ্যটি পাওয়া যায়নি" };
+  if (!product) return { title: "Product Not Found – Neeshanz", robots: { index: false } };
 
-  const description = product.description.slice(0, 160);
+  const description = truncateAtWord(product.description, 155);
+  const title = `${product.name} in Bangladesh | Neeshanz`;
+  const canonicalUrl = `/product/${product.slug}`;
+  const ogImage = product.images[0] ?? "/og-image.png";
+
   return {
-    title: product.name,
+    title,
     description,
-    alternates: { canonical: `/product/${product.slug}` },
+    alternates: { canonical: canonicalUrl },
     openGraph: {
-      title: product.name,
+      title,
       description,
       type: "website",
-      images: product.images.slice(0, 1),
+      url: canonicalUrl,
+      images: [{ url: ogImage, alt: product.name }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [ogImage],
     },
   };
 }
@@ -54,7 +94,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   // Reviews and related products don't depend on each other — fetch in parallel
   const [{ reviews, summary: reviewSummary }, related] = await Promise.all([
     getProductReviews(product._id, 6),
-    getRelatedProducts(product._id, product._id, 4),
+    getRelatedProducts(product._id, product.categoryId, 4),
   ]);
 
   return (

@@ -73,6 +73,13 @@ export const PERMISSIONS = {
     href: "/admin/messages",
     implemented: true,
   },
+  contact_management: {
+    label: "Contact Management",
+    description: "View and manage contact form submissions",
+    group: "People",
+    href: "/admin/contact",
+    implemented: true,
+  },
   content_management: {
     label: "Content Management",
     description: "Edit storefront pages, banners, announcements and FAQs",
@@ -99,6 +106,13 @@ export const PERMISSIONS = {
     description: "Change store details, delivery charges and payment numbers",
     group: "System",
     href: "/admin/settings",
+    implemented: true,
+  },
+  notifications: {
+    label: "Notifications",
+    description: "View and manage admin notifications",
+    group: "System",
+    href: "/admin/notifications",
     implemented: true,
   },
 } as const satisfies Record<string, PermissionMeta>;

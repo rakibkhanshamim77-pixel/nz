@@ -38,6 +38,7 @@ export interface ProductDetails {
   /** Small label above the title, e.g. "Oversized Tee" */
   eyebrow?: string;
   category?: { name: string; slug: string };
+  categoryId?: string;
   images: string[];
   /** Plain text — used for meta description and OG tags */
   description: string;

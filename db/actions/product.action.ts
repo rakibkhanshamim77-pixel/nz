@@ -149,6 +149,7 @@ async function getFeaturedProducts(limit = 5): Promise<HeroSlide[]> {
     const docs = await Product.find({ isFeatured: true, ...publishedProductFilter() })
       .sort({ updatedAt: -1, _id: -1 })
       .limit(Math.min(Math.max(1, limit), 10))
+      .select("name slug images thumbnail regularPrice salePrice discount discountPercentage features highlights badge shortDescription description colors isFeatured")
       .lean<RawDoc[]>()
       .exec();
 
@@ -240,6 +241,7 @@ async function getProducts({
     const docs = await Product.find(filter)
       .sort({ createdAt: -1, _id: -1 })
       .limit(Math.min(Math.max(1, limit), 48))
+      .select("name slug images regularPrice salePrice discount rating reviewCount")
       .lean<RawDoc[]>()
       .exec();
 
@@ -370,6 +372,7 @@ async function getShopProducts(params: ShopQueryParams = {}): Promise<ShopResult
         .sort(sortQuery)
         .skip(skip)
         .limit(SHOP_PER_PAGE)
+        .select("name slug images regularPrice salePrice discount rating reviewCount sizes colors stock category")
         .lean<RawDoc[]>()
         .exec(),
       Product.countDocuments(filter),

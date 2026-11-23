@@ -22,6 +22,11 @@ function isValidId(id: string): boolean {
   return mongoose.isValidObjectId(id);
 }
 
+/** Bust the product page cache when a review changes (rating count / reply visible to customers). */
+function revalidateProductPages() {
+  revalidatePath("/", "layout");
+}
+
 export async function publishReview(id: string): Promise<ActionResult> {
   const auth = await guardReviews();
   if (!auth.ok) return auth;
@@ -30,6 +35,7 @@ export async function publishReview(id: string): Promise<ActionResult> {
   await dbConnect();
   await Review.findByIdAndUpdate(id, { isPublished: true });
   revalidatePath("/admin/reviews");
+  revalidateProductPages();
   return { ok: true };
 }
 
@@ -41,6 +47,7 @@ export async function unpublishReview(id: string): Promise<ActionResult> {
   await dbConnect();
   await Review.findByIdAndUpdate(id, { isPublished: false, isFeatured: false });
   revalidatePath("/admin/reviews");
+  revalidateProductPages();
   return { ok: true };
 }
 
@@ -53,6 +60,7 @@ export async function featureReview(id: string): Promise<ActionResult> {
   // Feature implies published
   await Review.findByIdAndUpdate(id, { isFeatured: true, isPublished: true });
   revalidatePath("/admin/reviews");
+  revalidateProductPages();
   return { ok: true };
 }
 
@@ -64,6 +72,7 @@ export async function unfeatureReview(id: string): Promise<ActionResult> {
   await dbConnect();
   await Review.findByIdAndUpdate(id, { isFeatured: false });
   revalidatePath("/admin/reviews");
+  revalidateProductPages();
   return { ok: true };
 }
 
@@ -75,6 +84,7 @@ export async function deleteReview(id: string): Promise<ActionResult> {
   await dbConnect();
   await Review.findByIdAndDelete(id);
   revalidatePath("/admin/reviews");
+  revalidateProductPages();
   return { ok: true };
 }
 
@@ -99,6 +109,7 @@ export async function replyToReview(
     storeReply: { text: trimmed, repliedAt: new Date() },
   });
   revalidatePath("/admin/reviews");
+  revalidateProductPages();
   return { ok: true };
 }
 
@@ -110,5 +121,6 @@ export async function removeReply(id: string): Promise<ActionResult> {
   await dbConnect();
   await Review.findByIdAndUpdate(id, { $unset: { storeReply: "" } });
   revalidatePath("/admin/reviews");
+  revalidateProductPages();
   return { ok: true };
 }

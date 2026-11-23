@@ -239,6 +239,26 @@ export async function placeOrder(
       input.paymentMethod,
     ).catch((err) => console.error("[placeOrder] SMS send failed:", err));
 
+    // Fire-and-forget admin notifications
+    try {
+      const { createNotificationsForAdmins } = await import("./admin/notification.action");
+      const { sendPushToAdmins } = await import("@/lib/webpush");
+      const eventId = `order:${order._id}`;
+      createNotificationsForAdmins(
+        "new_order",
+        "নতুন অর্ডার",
+        `${order.orderNumber} — ${input.customer.name.trim()} — ৳${totalAmount}`,
+        `/admin/orders/${orderId}`,
+        orderId,
+        eventId,
+      ).catch(() => {});
+      sendPushToAdmins({
+        title: "নতুন অর্ডার!",
+        body: `${order.orderNumber} — ৳${totalAmount}`,
+        url: `/admin/orders/${orderId}`,
+      }).catch(() => {});
+    } catch {}
+
     return {
       success: true,
       data: {

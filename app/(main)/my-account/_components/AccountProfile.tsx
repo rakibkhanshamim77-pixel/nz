@@ -25,7 +25,7 @@ export default function AccountProfile({ user }: { user: AccountUser }) {
 
   return (
     <section id="profile">
-      <form className="card p-5 sm:p-7" onSubmit={handleSubmit} noValidate>
+      <form className="card p-4 sm:p-7" onSubmit={handleSubmit} noValidate>
         <h2 className="font-display font-bold text-xl mb-1">প্রোফাইল তথ্য</h2>
         <p className="text-sm text-mute mb-6">চেকআউটে এই তথ্য ব্যবহার হবে।</p>
 

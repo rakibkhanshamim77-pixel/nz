@@ -1,17 +1,21 @@
 import type { Metadata } from "next";
 
 import { guardPage } from "@/app/utils/authz";
-import { getStoreSettings } from "@/db/settings.server";
+import { getStoreSettings, getMaintenanceStatus } from "@/db/settings.server";
 import AdminTopbar from "../../_components/AdminTopbar";
 import AdminBreadcrumb from "../../_components/AdminBreadcrumb";
 import SettingsForm from "./_components/SettingsForm";
+import MaintenanceSection from "./_components/MaintenanceSection";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Settings – Neeshanz Admin" };
 
 export default async function SettingsPage() {
   const user = await guardPage("settings");
-  const settings = await getStoreSettings();
+  const [settings, maintenance] = await Promise.all([
+    getStoreSettings(),
+    getMaintenanceStatus(),
+  ]);
 
   return (
     <div>
@@ -44,6 +48,16 @@ export default async function SettingsPage() {
         </div>
 
         <SettingsForm initial={settings} />
+
+        {/* Maintenance mode — super-admin only */}
+        {user.role === "admin" && (
+          <div className="mt-8">
+            <MaintenanceSection
+              initialEnabled={maintenance.enabled}
+              initialMessage={maintenance.message}
+            />
+          </div>
+        )}
       </main>
     </div>
   );

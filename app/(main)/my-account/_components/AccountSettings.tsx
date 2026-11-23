@@ -48,7 +48,7 @@ export default function AccountSettings() {
   ];
 
   return (
-    <section id="settings" className="card p-5 sm:p-7">
+    <section id="settings" className="card p-4 sm:p-7">
       <h2 className="font-display font-bold text-xl mb-5">নোটিফিকেশন</h2>
 
       <div className="divide-y divide-[var(--line)]">

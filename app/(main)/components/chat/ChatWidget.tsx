@@ -339,8 +339,8 @@ export default function ChatWidget() {
         }
       `}</style>
 
-      {/* Floating button */}
-      <div className="fixed z-50" style={{ bottom: 24, right: 24 }}>
+      {/* Floating button — sits above the mobile nav bar on small screens */}
+      <div className="fixed z-[60] lg:bottom-6 bottom-24" style={{ right: 24 }}>
         {!open && unread > 0 && (
           <span
             className="cw-pulse absolute inset-0 rounded-full"
@@ -407,9 +407,8 @@ export default function ChatWidget() {
       {/* Chat window */}
       {open && (
         <div
-          className="cw-window fixed z-40 flex flex-col overflow-hidden"
+          className="cw-window fixed z-[59] flex flex-col overflow-hidden lg:bottom-24 bottom-[164px]"
           style={{
-            bottom: 96,
             right: 24,
             width: "min(400px, calc(100vw - 32px))",
             height: "min(580px, calc(100vh - 120px))",

@@ -10,7 +10,7 @@ export default function ShopGrid({ products }: Props) {
   if (products.length === 0) return <ShopEmptyState />;
 
   return (
-    <div className="grid grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-5">
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-5">
       {products.map((product, i) => (
         <ShopProductCard key={product._id} product={product} priority={i < 4} />
       ))}

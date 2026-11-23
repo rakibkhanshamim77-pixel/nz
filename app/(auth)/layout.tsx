@@ -1,5 +1,10 @@
+import type { Metadata } from "next";
 import Logo from "../(main)/components/Logo";
 import ThemeSwitcher from "../(main)/components/ThemeSwitcher";
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 export default function authLayout({
   children,

@@ -1,3 +1,6 @@
+// ISR: regenerate at most every 60 s; purged immediately by admin product/content actions
+export const revalidate = 60;
+
 import { Suspense } from "react";
 import Categories from "./components/Categories";
 

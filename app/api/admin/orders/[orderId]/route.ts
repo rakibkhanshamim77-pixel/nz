@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import { requirePermission } from "@/app/utils/authz";
 import dbConnect from "@/db/connect/dbConnect";
 import Order from "@/db/models/Order";
+import { sendOrderStatusUpdate } from "@/app/lib/sms";
 
 function forbidden() {
   return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -102,6 +103,21 @@ export async function PATCH(
     ).lean();
 
     if (!order) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+    // Fire-and-forget SMS on status change
+    if (body.status) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const o = order as any;
+      if (o.customer?.phone) {
+        sendOrderStatusUpdate(
+          o.customer.phone,
+          o.customer.name ?? "গ্রাহক",
+          o.orderNumber ?? params.orderId,
+          body.status as string,
+        ).catch((err) => console.error("[orderStatus] SMS failed:", err));
+      }
+    }
+
     return NextResponse.json(order);
   } catch {
     return NextResponse.json({ error: "Server error" }, { status: 500 });

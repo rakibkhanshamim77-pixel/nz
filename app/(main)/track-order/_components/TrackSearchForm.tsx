@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TrackData } from "./track.types";
 import TrackOrderList from "./TrackOrderList";
 import TrackResult from "./TrackResult";
@@ -13,40 +13,63 @@ function normPhone(raw: string) {
   return n.startsWith("88") ? n.slice(2, 13) : n.slice(0, 11);
 }
 
-export default function TrackSearchForm() {
-  const [phone,   setPhone]   = useState("");
-  const [orders,  setOrders]  = useState<TrackData[] | null>(null);
-  const [selected,setSelected]= useState<TrackData | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error,   setError]   = useState("");
+interface Props {
+  initialPhone?: string;
+  initialOrderId?: string;
+}
 
-  async function lookup(ph: string) {
-    const normalizedPhone = normPhone(ph);
+export default function TrackSearchForm({ initialPhone = "", initialOrderId = "" }: Props) {
+  const [phone, setPhone] = useState(initialPhone);
+  const [orderId, setOrderId] = useState(initialOrderId);
+  const [orders, setOrders] = useState<TrackData[] | null>(null);
+  const [selected, setSelected] = useState<TrackData | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  async function lookup(ph: string, oid?: string) {
+    const trimOid = oid?.trim().toUpperCase();
+    const normalizedPhone = ph ? normPhone(ph) : "";
     setError("");
 
-    if (!/^01[3-9]\d{8}$/.test(normalizedPhone)) {
+    // Allow orderNumber-only lookup (from SMS deep-link)
+    const hasPhone = /^01[3-9]\d{8}$/.test(normalizedPhone);
+    if (!hasPhone && !trimOid) {
       setError("সঠিক মোবাইল নম্বর দিন (যেমন 017XXXXXXXX)।");
       return;
     }
+    if (!hasPhone && !trimOid) return;
 
     setLoading(true);
     setOrders(null);
     setSelected(null);
 
     try {
-      const res  = await fetch(`/api/track?phone=${encodeURIComponent(normalizedPhone)}`);
+      const params = new URLSearchParams();
+      if (hasPhone) params.set("phone", normalizedPhone);
+      if (trimOid) params.set("orderNumber", trimOid);
+
+      const res = await fetch(`/api/track?${params}`);
       const data = await res.json();
 
       if (!res.ok) {
         setError(
           data.error === "notfound"
-            ? "এই মোবাইল নম্বরে কোনো অর্ডার পাওয়া যায়নি।"
-            : "সার্ভারে সমস্যা হয়েছে। পরে আবার চেষ্টা করুন।"
+            ? trimOid && !hasPhone
+              ? "এই অর্ডার আইডিতে কোনো অর্ডার পাওয়া যায়নি।"
+              : trimOid
+              ? "এই নম্বর ও অর্ডার আইডিতে কোনো অর্ডার পাওয়া যায়নি।"
+              : "এই মোবাইল নম্বরে কোনো অর্ডার পাওয়া যায়নি।"
+            : "সার্ভারে সমস্যা হয়েছে। পরে আবার চেষ্টা করুন।",
         );
         return;
       }
 
-      setOrders(data.orders);
+      // Single order or specific lookup → show detail directly
+      if (trimOid || data.orders.length === 1) {
+        setSelected(data.orders[0]);
+      } else {
+        setOrders(data.orders);
+      }
     } catch {
       setError("সার্ভারে সমস্যা হয়েছে। পরে আবার চেষ্টা করুন।");
     } finally {
@@ -54,21 +77,32 @@ export default function TrackSearchForm() {
     }
   }
 
+  // Auto-fetch when orderId is in the URL — no phone needed
+  useEffect(() => {
+    if (initialOrderId) {
+      lookup("", initialOrderId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    lookup(phone);
+    lookup(phone, orderId);
   }
 
   return (
     <>
       {/* ── Search form ── */}
       <form onSubmit={onSubmit} className="card p-5 sm:p-7" noValidate>
-        <div className="grid sm:grid-cols-[1fr_auto] gap-4 items-end max-w-xl">
+        <div className="grid sm:grid-cols-2 gap-4 max-w-2xl">
           <label className="block">
-            <span className="lbl">মোবাইল নম্বর</span>
+            <span className="lbl">মোবাইল নম্বর *</span>
             <input
               value={phone}
-              onChange={(e) => { setError(""); setPhone(toEn(e.target.value).replace(/[^\d+]/g, "")); }}
+              onChange={(e) => {
+                setError("");
+                setPhone(toEn(e.target.value).replace(/[^\d+]/g, ""));
+              }}
               className={`inp${error ? " err" : ""}`}
               inputMode="numeric"
               placeholder="01XXXXXXXXX"
@@ -78,41 +112,65 @@ export default function TrackSearchForm() {
             />
           </label>
 
+          <label className="block">
+            <span className="lbl">অর্ডার আইডি (ঐচ্ছিক)</span>
+            <input
+              value={orderId}
+              onChange={(e) => {
+                setError("");
+                setOrderId(e.target.value.replace(/\s/g, "").toUpperCase());
+              }}
+              className="inp"
+              placeholder="NEE-20250101-XXXX"
+              autoComplete="off"
+              maxLength={30}
+              aria-label="অর্ডার আইডি"
+            />
+          </label>
+        </div>
+
+        <div className="mt-4">
           <button
             type="submit"
             disabled={loading}
-            className="h-[52px] px-7 rounded-2xl bg-ink text-bg font-semibold hover:opacity-90 flex items-center justify-center gap-2 disabled:opacity-50 transition-opacity"
+            className="h-[52px] px-7 rounded-2xl bg-ink text-bg font-semibold hover:opacity-90 flex items-center gap-2 disabled:opacity-50 transition-opacity"
           >
             {loading ? (
               <>
-                <span className="w-[18px] h-[18px] rounded-full border-2 border-current border-r-transparent animate-spin" aria-hidden="true" />
+                <span
+                  className="w-[18px] h-[18px] rounded-full border-2 border-current border-r-transparent animate-spin"
+                  aria-hidden="true"
+                />
                 <span>খোঁজা হচ্ছে…</span>
               </>
             ) : (
               <>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
-                  <circle cx={11} cy={11} r={7} /><path d="m20 20-3.5-3.5" />
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <circle cx={11} cy={11} r={7} />
+                  <path d="m20 20-3.5-3.5" />
                 </svg>
-                <span>অর্ডার দেখুন</span>
+                <span>অর্ডার ট্র্যাক করুন</span>
               </>
             )}
           </button>
         </div>
 
-        {/* Error */}
-        {error && <p role="alert" className="mt-4 text-sm font-medium">⚠ {error}</p>}
-
-        {/* Demo hint */}
-        <p className="text-xs text-mute mt-4">
-          টেস্ট করতে:{" "}
-          <button
-            type="button"
-            className="underline text-ink font-semibold"
-            onClick={() => { setPhone("01712345678"); lookup("01712345678"); }}
-          >
-            01712345678
-          </button>
+        <p className="text-xs text-[var(--mute)] mt-3">
+          * শুধু মোবাইল নম্বর দিলে আপনার সব অর্ডার দেখাবে। অর্ডার আইডি দিলে সরাসরি সেই অর্ডার দেখাবে।
         </p>
+
+        {error && (
+          <p role="alert" className="mt-4 text-sm font-medium text-red-600">
+            ⚠ {error}
+          </p>
+        )}
       </form>
 
       {/* ── Order list ── */}
@@ -123,16 +181,25 @@ export default function TrackSearchForm() {
       {/* ── Order detail ── */}
       {selected && (
         <div className="mt-6">
-          <button
-            type="button"
-            onClick={() => setSelected(null)}
-            className="inline-flex items-center gap-1.5 text-sm text-mute hover:text-ink transition-colors mb-5"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
-              <path d="m15 18-6-6 6-6" />
-            </svg>
-            সব অর্ডারে ফিরুন
-          </button>
+          {orders && orders.length > 1 && (
+            <button
+              type="button"
+              onClick={() => setSelected(null)}
+              className="inline-flex items-center gap-1.5 text-sm text-mute hover:text-ink transition-colors mb-5"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path d="m15 18-6-6 6-6" />
+              </svg>
+              সব অর্ডারে ফিরুন
+            </button>
+          )}
           <TrackResult order={selected} />
         </div>
       )}

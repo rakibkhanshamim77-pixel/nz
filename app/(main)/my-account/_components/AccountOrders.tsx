@@ -49,7 +49,7 @@ export default function AccountOrders({ orders }: { orders: AccountOrder[] }) {
   }
 
   return (
-    <section id="orders" className="card p-5 sm:p-7">
+    <section id="orders" className="card p-4 sm:p-7">
       <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
         <h2 className="font-display font-bold text-xl">আমার অর্ডার</h2>
         {orders.length > 0 && (

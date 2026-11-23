@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import NotificationBell from "./NotificationBell";
 
 interface BreadcrumbItem {
   label: string;
@@ -16,6 +17,7 @@ interface Props {
   userName?: string;
   userRole?: string;
   actions?: React.ReactNode;
+  /** @deprecated NotificationBell manages its own count via SSE */
   notificationCount?: number;
   searchPlaceholder?: string;
 }
@@ -25,7 +27,8 @@ export default function AdminTopbar({
   userName,
   userRole,
   actions,
-  notificationCount = 0,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  notificationCount: _nc,
   searchPlaceholder = "Search…",
 }: Props) {
   const [theme, setTheme] = useState<"light" | "dark" | null>(null);
@@ -159,26 +162,7 @@ export default function AdminTopbar({
           </button>
 
           {/* Notifications bell */}
-          <Link
-            href="/admin#payments"
-            className="relative w-10 h-10 rounded-full border border-[var(--line)] bg-[var(--surface)] grid place-items-center hover:bg-[var(--soft)] transition-colors"
-            aria-label="Notifications"
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              viewBox="0 0 24 24"
-            >
-              <path d="M6 9a6 6 0 0 1 12 0c0 6 2 7 2 7H4s2-1 2-7M10 20a2 2 0 0 0 4 0" />
-            </svg>
-            {notificationCount > 0 && (
-              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[var(--ink)] text-[var(--bg)] text-[10px] font-bold grid place-items-center">
-                {notificationCount > 99 ? "99+" : notificationCount}
-              </span>
-            )}
-          </Link>
+          <NotificationBell />
 
           {/* User avatar */}
           <span className="hidden sm:flex items-center gap-2.5 pl-2">

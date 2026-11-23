@@ -8,10 +8,12 @@ import { useCart } from "@/lib/CartProvider";
 import { type CartItem, readBuyNow, clearBuyNow } from "@/lib/cart";
 import { placeOrder } from "@/db/actions/order.action";
 import { validateCoupon } from "@/db/actions/validateCoupon";
-import { amountToFreeDelivery, deliveryChargeFor, type DeliverySettings } from "@/db/settings";
-import LocationDropdown, {
-  type LocationOption,
-} from "./LocationDropdown";
+import {
+  amountToFreeDelivery,
+  deliveryChargeFor,
+  type DeliverySettings,
+} from "@/db/settings";
+import LocationDropdown, { type LocationOption } from "./LocationDropdown";
 import {
   divisions,
   getDistrictsByDivision,
@@ -32,6 +34,11 @@ interface Props {
 function fmt(n: number) {
   return "৳" + n.toLocaleString("bn-BD");
 }
+
+// MOBILE: 16px text on phones stops iOS Safari from zooming the page when an input is focused
+const INP = "inp max-sm:!text-base";
+// MOBILE: slightly tighter card padding on very small screens (<400px)
+const CARD_PAD = "p-4 min-[400px]:p-5 sm:p-7";
 
 export default function CheckoutClient({ prefill, delivery }: Props) {
   const router = useRouter();
@@ -129,6 +136,7 @@ export default function CheckoutClient({ prefill, delivery }: Props) {
   const discount = couponApplied?.discountAmount ?? 0;
   const total = Math.max(0, subtotal + deliveryCharge - discount);
   const freeDeliveryGap = amountToFreeDelivery(subtotal, delivery);
+  const displayTotal = districtId ? fmt(total) : fmt(subtotal - discount);
 
   async function applyCoupon() {
     if (!couponInput.trim()) return;
@@ -257,7 +265,7 @@ export default function CheckoutClient({ prefill, delivery }: Props) {
 
   if (hydrated && !items.length) {
     return (
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 pt-16 pb-36 text-center">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 pt-16 pb-24 sm:pb-36 text-center">
         <p className="font-display font-bold text-2xl mb-2">কার্ট খালি</p>
         <p className="text-[var(--mute)] mb-6">
           চেকআউট করতে আগে পণ্য যোগ করুন।
@@ -273,13 +281,14 @@ export default function CheckoutClient({ prefill, delivery }: Props) {
   }
 
   return (
-    <main className="max-w-6xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10 pb-36 lg:pb-20">
+    // MOBILE: pb-36 leaves room for the sticky bottom bar below (hidden on lg+)
+    <main className="max-w-6xl mx-auto px-4 sm:px-6 pt-5 sm:pt-10 pb-36 lg:pb-20">
       {/* Header */}
-      <div className="flex flex-wrap items-end justify-between gap-4 mb-6 sm:mb-8">
+      <div className="flex flex-wrap items-end justify-between gap-4 mb-5 sm:mb-8">
         <div>
           <Link
             href="/shop"
-            className="inline-flex items-center gap-1.5 text-sm text-[var(--mute)] hover:text-[var(--ink)] mb-3"
+            className="inline-flex items-center gap-1.5 text-sm text-[var(--mute)] hover:text-[var(--ink)] mb-2 sm:mb-3 py-2 -my-1"
           >
             <svg
               className="w-4 h-4"
@@ -295,10 +304,10 @@ export default function CheckoutClient({ prefill, delivery }: Props) {
           <p className="text-xs font-semibold tracking-[.22em] uppercase text-[var(--ink)] mb-1 md:hidden">
             ধাপ ২ / ৩
           </p>
-          <h1 className="font-display font-extrabold text-[2rem] sm:text-4xl lg:text-5xl tracking-tight leading-none">
+          <h1 className="font-display font-extrabold text-[1.85rem] sm:text-4xl lg:text-5xl tracking-tight leading-none">
             চেকআউট
           </h1>
-          <p className="text-[var(--mute)] mt-2 text-[15px]">
+          <p className="text-[var(--mute)] mt-2 text-[14.5px] sm:text-[15px]">
             ডেলিভারি তথ্য দিয়ে অর্ডারটি কনফার্ম করুন।
           </p>
         </div>
@@ -306,16 +315,16 @@ export default function CheckoutClient({ prefill, delivery }: Props) {
 
       <form
         onSubmit={handleSubmit}
-        className="grid lg:grid-cols-[minmax(0,1fr)_380px] gap-6 lg:gap-8 items-start"
+        className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_380px] gap-4 sm:gap-6 lg:gap-8 items-start"
       >
         {/* Left column */}
-        <div className="space-y-5">
+        <div className="space-y-4 sm:space-y-5 min-w-0">
           {/* Section 1: Delivery Address */}
-          <section className="card p-5 sm:p-7">
-            <div className="flex items-start gap-3 mb-6">
+          <section className={`card ${CARD_PAD}`}>
+            <div className="flex items-start gap-3 mb-5 sm:mb-6">
               <span className="step-no">1</span>
               <div>
-                <h2 className="font-display font-bold text-xl leading-tight">
+                <h2 className="font-display font-bold text-lg sm:text-xl leading-tight">
                   ডেলিভারি ঠিকানা
                 </h2>
                 <p className="text-sm text-[var(--mute)] mt-0.5">
@@ -325,10 +334,10 @@ export default function CheckoutClient({ prefill, delivery }: Props) {
             </div>
             <div className="grid sm:grid-cols-2 gap-4">
               {/* Name */}
-              <label className="field block">
+              <label className="field block min-w-0">
                 <span className="lbl">পুরো নাম *</span>
                 <input
-                  className="inp"
+                  className={INP}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
@@ -337,10 +346,11 @@ export default function CheckoutClient({ prefill, delivery }: Props) {
                 />
               </label>
               {/* Phone */}
-              <label className="field block">
+              <label className="field block min-w-0">
                 <span className="lbl">মোবাইল নম্বর *</span>
                 <input
-                  className="inp"
+                  className={INP}
+                  type="tel"
                   inputMode="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
@@ -350,7 +360,7 @@ export default function CheckoutClient({ prefill, delivery }: Props) {
                 />
               </label>
               {/* Email */}
-              <label className="field block sm:col-span-2">
+              <label className="field block sm:col-span-2 min-w-0">
                 <span className="lbl">
                   ইমেইল{" "}
                   <span className="font-medium text-[var(--mute)]">
@@ -359,7 +369,8 @@ export default function CheckoutClient({ prefill, delivery }: Props) {
                 </span>
                 <input
                   type="email"
-                  className="inp"
+                  inputMode="email"
+                  className={INP}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   autoComplete="email"
@@ -367,8 +378,8 @@ export default function CheckoutClient({ prefill, delivery }: Props) {
                 />
               </label>
 
-              {/* Division */}
-              <div className="sm:col-span-2 grid sm:grid-cols-3 gap-4">
+              {/* Division / District / Upazila */}
+              <div className="sm:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4 min-w-0">
                 <LocationDropdown
                   label="বিভাগ"
                   placeholder="বিভাগ নির্বাচন করুন"
@@ -379,7 +390,11 @@ export default function CheckoutClient({ prefill, delivery }: Props) {
                 />
                 <LocationDropdown
                   label="জেলা"
-                  placeholder={divisionId ? "জেলা নির্বাচন করুন" : "আগে বিভাগ নির্বাচন করুন"}
+                  placeholder={
+                    divisionId
+                      ? "জেলা নির্বাচন করুন"
+                      : "আগে বিভাগ নির্বাচন করুন"
+                  }
                   options={districtOptions}
                   value={districtId}
                   onChange={handleDistrictChange}
@@ -388,7 +403,11 @@ export default function CheckoutClient({ prefill, delivery }: Props) {
                 />
                 <LocationDropdown
                   label="উপজেলা / থানা"
-                  placeholder={districtId ? "উপজেলা নির্বাচন করুন" : "আগে জেলা নির্বাচন করুন"}
+                  placeholder={
+                    districtId
+                      ? "উপজেলা নির্বাচন করুন"
+                      : "আগে জেলা নির্বাচন করুন"
+                  }
                   options={upazilaOptions}
                   value={upazilaId}
                   onChange={setUpazilaId}
@@ -397,11 +416,11 @@ export default function CheckoutClient({ prefill, delivery }: Props) {
               </div>
 
               {/* Address */}
-              <label className="field block sm:col-span-2">
+              <label className="field block sm:col-span-2 min-w-0">
                 <span className="lbl">সম্পূর্ণ ঠিকানা *</span>
                 <textarea
                   rows={3}
-                  className="inp"
+                  className={INP}
                   style={{ height: "auto", paddingTop: 12, paddingBottom: 12 }}
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
@@ -410,7 +429,7 @@ export default function CheckoutClient({ prefill, delivery }: Props) {
                 />
               </label>
               {/* Note */}
-              <label className="field block sm:col-span-2">
+              <label className="field block sm:col-span-2 min-w-0">
                 <span className="lbl">
                   অর্ডার নোট{" "}
                   <span className="font-medium text-[var(--mute)]">
@@ -418,7 +437,7 @@ export default function CheckoutClient({ prefill, delivery }: Props) {
                   </span>
                 </span>
                 <input
-                  className="inp"
+                  className={INP}
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                   placeholder="ডেলিভারির আগে কল করুন…"
@@ -428,11 +447,11 @@ export default function CheckoutClient({ prefill, delivery }: Props) {
           </section>
 
           {/* Section 2: Delivery Method */}
-          <section className="card p-5 sm:p-7">
-            <div className="flex items-start gap-3 mb-6">
+          <section className={`card ${CARD_PAD}`}>
+            <div className="flex items-start gap-3 mb-5 sm:mb-6">
               <span className="step-no">2</span>
               <div>
-                <h2 className="font-display font-bold text-xl leading-tight">
+                <h2 className="font-display font-bold text-lg sm:text-xl leading-tight">
                   ডেলিভারি চার্জ
                 </h2>
                 <p className="text-sm text-[var(--mute)] mt-0.5">
@@ -445,11 +464,12 @@ export default function CheckoutClient({ prefill, delivery }: Props) {
                 { label: "ঢাকা", desc: "১–২ কার্যদিবস", charge: 60 },
                 { label: "ঢাকার বাইরে", desc: "২–৪ কার্যদিবস", charge: 120 },
               ].map((opt) => {
-                const active = opt.charge === deliveryCharge && districtId !== null;
+                const active =
+                  opt.charge === deliveryCharge && districtId !== null;
                 return (
                   <div
                     key={opt.charge}
-                    className={`flex items-center gap-3 rounded-2xl p-4 border transition-colors ${
+                    className={`flex items-center gap-3 rounded-2xl p-3.5 sm:p-4 border transition-colors ${
                       active
                         ? "border-[var(--ink)] bg-[var(--soft)]"
                         : "border-[var(--line)]"
@@ -468,7 +488,7 @@ export default function CheckoutClient({ prefill, delivery }: Props) {
                         {opt.desc}
                       </span>
                     </span>
-                    <b className="font-display">{fmt(opt.charge)}</b>
+                    <b className="font-display shrink-0">{fmt(opt.charge)}</b>
                   </div>
                 );
               })}
@@ -481,11 +501,11 @@ export default function CheckoutClient({ prefill, delivery }: Props) {
           </section>
 
           {/* Section 3: Payment Method */}
-          <section className="card p-5 sm:p-7">
-            <div className="flex items-start gap-3 mb-6">
+          <section className={`card ${CARD_PAD}`}>
+            <div className="flex items-start gap-3 mb-5 sm:mb-6">
               <span className="step-no">3</span>
               <div>
-                <h2 className="font-display font-bold text-xl leading-tight">
+                <h2 className="font-display font-bold text-lg sm:text-xl leading-tight">
                   পেমেন্ট পদ্ধতি
                 </h2>
                 <p className="text-sm text-[var(--mute)] mt-0.5">
@@ -510,7 +530,7 @@ export default function CheckoutClient({ prefill, delivery }: Props) {
               ].map((opt) => (
                 <label
                   key={opt.value}
-                  className={`flex items-start gap-3 rounded-2xl p-4 border cursor-pointer transition-colors ${
+                  className={`flex items-start gap-3 rounded-2xl p-3.5 sm:p-4 border cursor-pointer transition-colors ${
                     paymentMethod === opt.value
                       ? "border-[var(--ink)] bg-[var(--soft)]"
                       : "border-[var(--line)]"
@@ -522,9 +542,9 @@ export default function CheckoutClient({ prefill, delivery }: Props) {
                     value={opt.value}
                     checked={paymentMethod === opt.value}
                     onChange={() => setPaymentMethod(opt.value)}
-                    className="mt-1"
+                    className="mt-0.5 w-5 h-5 sm:w-4 sm:h-4 sm:mt-1 shrink-0 accent-[var(--ink)]"
                   />
-                  <span>
+                  <span className="min-w-0">
                     <b className="block">{opt.label}</b>
                     <span className="text-sm text-[var(--mute)]">
                       {opt.desc}
@@ -541,8 +561,8 @@ export default function CheckoutClient({ prefill, delivery }: Props) {
           </section>
 
           {/* Trust badges */}
-          <section className="card p-5 sm:p-6">
-            <div className="grid sm:grid-cols-3 gap-4 text-sm">
+          <section className="card p-4 min-[400px]:p-5 sm:p-6">
+            <div className="grid sm:grid-cols-3 gap-3.5 sm:gap-4 text-sm">
               {[
                 {
                   icon: <path d="M3 7h11v8H3zM14 10h4l3 3v2h-7z" />,
@@ -592,9 +612,11 @@ export default function CheckoutClient({ prefill, delivery }: Props) {
         </div>
 
         {/* Right column: Order Summary */}
-        <aside className="lg:sticky lg:top-24 card p-5 sm:p-6">
-          <div className="flex items-center justify-between gap-3 mb-5">
-            <h2 className="font-display font-bold text-xl">অর্ডার সামারি</h2>
+        <aside className="lg:sticky lg:top-24 card p-4 min-[400px]:p-5 sm:p-6 min-w-0">
+          <div className="flex items-center justify-between gap-3 mb-4 sm:mb-5">
+            <h2 className="font-display font-bold text-lg sm:text-xl">
+              অর্ডার সামারি
+            </h2>
             <span className="text-xs font-semibold tracking-wide uppercase text-[var(--mute)]">
               {items.length > 0
                 ? `${items.reduce((s, i) => s + i.quantity, 0)} টি পণ্য`
@@ -604,7 +626,7 @@ export default function CheckoutClient({ prefill, delivery }: Props) {
 
           {/* Free shipping progress — only when free delivery is actually switched on */}
           {freeDeliveryGap !== null && (
-            <div className="mb-5 rounded-2xl bg-[var(--soft)] p-3.5">
+            <div className="mb-4 sm:mb-5 rounded-2xl bg-[var(--soft)] p-3.5">
               <p className="text-sm text-[var(--mute)] mb-2">
                 আর {fmt(freeDeliveryGap)} কিনলে ডেলিভারি ফ্রি
               </p>
@@ -619,17 +641,19 @@ export default function CheckoutClient({ prefill, delivery }: Props) {
             </div>
           )}
 
-          {delivery.freeDeliveryEnabled && freeDeliveryGap === null && subtotal > 0 && (
-            <div className="mb-5 rounded-2xl bg-[var(--soft)] p-3.5">
-              <p className="text-sm font-semibold">ডেলিভারি ফ্রি! 🎉</p>
-            </div>
-          )}
+          {delivery.freeDeliveryEnabled &&
+            freeDeliveryGap === null &&
+            subtotal > 0 && (
+              <div className="mb-4 sm:mb-5 rounded-2xl bg-[var(--soft)] p-3.5">
+                <p className="text-sm font-semibold">ডেলিভারি ফ্রি! 🎉</p>
+              </div>
+            )}
 
           {/* Coupon input */}
-          <div className="mb-5">
+          <div className="mb-4 sm:mb-5">
             {couponApplied ? (
               <div className="flex items-center justify-between gap-2 rounded-2xl bg-[var(--soft)] border border-[var(--ink)] px-4 py-3">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 min-w-0">
                   <svg
                     className="w-4 h-4 text-[var(--ink)] shrink-0"
                     fill="none"
@@ -639,8 +663,10 @@ export default function CheckoutClient({ prefill, delivery }: Props) {
                   >
                     <path d="m5 12 5 5L20 7" />
                   </svg>
-                  <div>
-                    <p className="text-sm font-bold font-mono">{couponApplied.code}</p>
+                  <div className="min-w-0">
+                    <p className="text-sm font-bold font-mono truncate">
+                      {couponApplied.code}
+                    </p>
                     <p className="text-xs text-[var(--mute)]">
                       {couponApplied.label} প্রযোজ্য
                     </p>
@@ -649,7 +675,7 @@ export default function CheckoutClient({ prefill, delivery }: Props) {
                 <button
                   type="button"
                   onClick={removeCoupon}
-                  className="text-xs text-[var(--mute)] hover:text-red-500 transition-colors"
+                  className="shrink-0 h-10 px-2 -mr-2 text-xs text-[var(--mute)] hover:text-red-500 transition-colors"
                 >
                   সরান ✕
                 </button>
@@ -658,15 +684,20 @@ export default function CheckoutClient({ prefill, delivery }: Props) {
               <div>
                 <div className="flex gap-2">
                   <input
-                    className="inp flex-1 !rounded-2xl uppercase placeholder:normal-case placeholder:text-[var(--mute)]"
+                    className={`${INP} flex-1 min-w-0 !rounded-2xl uppercase placeholder:normal-case placeholder:text-[var(--mute)]`}
                     value={couponInput}
                     onChange={(e) => {
                       setCouponInput(e.target.value.toUpperCase());
                       setCouponError("");
                     }}
-                    onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), applyCoupon())}
+                    onKeyDown={(e) =>
+                      e.key === "Enter" && (e.preventDefault(), applyCoupon())
+                    }
                     placeholder="কুপন কোড"
                     disabled={couponLoading}
+                    autoCapitalize="characters"
+                    autoCorrect="off"
+                    spellCheck={false}
                   />
                   <button
                     type="button"
@@ -686,8 +717,8 @@ export default function CheckoutClient({ prefill, delivery }: Props) {
             )}
           </div>
 
-          {/* Items list */}
-          <div className="space-y-4 max-h-72 overflow-y-auto pr-1 mb-4">
+          {/* Items list — MOBILE: no inner scroll box (page scrolls instead); lg+ keeps the capped height */}
+          <div className="space-y-4 lg:max-h-72 lg:overflow-y-auto lg:pr-1 mb-4">
             {!hydrated
               ? Array.from({ length: 2 }).map((_, i) => (
                   <div key={i} className="flex gap-3 animate-pulse">
@@ -703,7 +734,7 @@ export default function CheckoutClient({ prefill, delivery }: Props) {
                     key={`${item.productId}-${item.size}-${item.color}`}
                     className="flex gap-3"
                   >
-                    <div className="w-16 h-16 rounded-xl overflow-hidden bg-[var(--soft)] shrink-0 relative">
+                    <div className="w-16 h-20 sm:h-16 rounded-xl overflow-hidden bg-[var(--soft)] shrink-0 relative">
                       {item.image && (
                         <Image
                           src={item.image}
@@ -715,7 +746,7 @@ export default function CheckoutClient({ prefill, delivery }: Props) {
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-sm leading-tight truncate">
+                      <p className="font-semibold text-sm leading-tight line-clamp-2 sm:truncate">
                         {item.name}
                       </p>
                       {(item.size || item.color) && (
@@ -723,34 +754,37 @@ export default function CheckoutClient({ prefill, delivery }: Props) {
                           {[item.size, item.color].filter(Boolean).join(" · ")}
                         </p>
                       )}
-                      <div className="flex items-center justify-between mt-1.5">
-                        <div className="flex items-center gap-1 border border-[var(--line)] rounded-lg overflow-hidden">
+                      {/* MOBILE: wraps instead of overflowing; bigger tap targets */}
+                      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 mt-2 sm:mt-1.5">
+                        <div className="flex items-center border border-[var(--line)] rounded-xl sm:rounded-lg overflow-hidden">
                           <button
                             type="button"
                             onClick={() => updateQty(item, item.quantity - 1)}
-                            className="w-7 h-7 flex items-center justify-center hover:bg-[var(--soft)]"
+                            className="w-9 h-9 sm:w-7 sm:h-7 flex items-center justify-center hover:bg-[var(--soft)] active:bg-[var(--soft)]"
+                            aria-label="Decrease quantity"
                           >
                             −
                           </button>
-                          <span className="w-7 text-center text-sm font-semibold">
+                          <span className="w-8 sm:w-7 text-center text-sm font-semibold">
                             {item.quantity}
                           </span>
                           <button
                             type="button"
                             onClick={() => updateQty(item, item.quantity + 1)}
-                            className="w-7 h-7 flex items-center justify-center hover:bg-[var(--soft)]"
+                            className="w-9 h-9 sm:w-7 sm:h-7 flex items-center justify-center hover:bg-[var(--soft)] active:bg-[var(--soft)]"
+                            aria-label="Increase quantity"
                           >
                             +
                           </button>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1 sm:gap-2 ml-auto">
                           <span className="text-sm font-semibold">
                             {fmt(item.unitPrice * item.quantity)}
                           </span>
                           <button
                             type="button"
                             onClick={() => removeItem(item)}
-                            className="text-[var(--mute)] hover:text-red-500 text-xs"
+                            className="w-9 h-9 sm:w-auto sm:h-auto -mr-2 sm:mr-0 grid place-items-center text-[var(--mute)] hover:text-red-500 text-xs"
                             aria-label="Remove"
                           >
                             ✕
@@ -782,13 +816,13 @@ export default function CheckoutClient({ prefill, delivery }: Props) {
                     ({couponApplied?.code})
                   </span>
                 </dt>
-                <dd className="font-semibold">−{fmt(discount)}</dd>
+                <dd className="font-semibold shrink-0">−{fmt(discount)}</dd>
               </div>
             )}
             <div className="flex items-end justify-between gap-4 pt-3 border-t border-[var(--line)]">
               <dt className="font-bold">সর্বমোট</dt>
-              <dd className="font-display font-extrabold text-[1.7rem] leading-none">
-                {districtId ? fmt(total) : fmt(subtotal - discount)}
+              <dd className="font-display font-extrabold text-[1.6rem] sm:text-[1.7rem] leading-none">
+                {displayTotal}
               </dd>
             </div>
             {paymentMethod === "cod" && districtId && (
@@ -797,26 +831,31 @@ export default function CheckoutClient({ prefill, delivery }: Props) {
                 <b className="text-[var(--ink)]">{fmt(deliveryCharge)}</b>
                 <br />
                 ডেলিভারিতে দিন:{" "}
-                <b className="text-[var(--ink)]">{fmt(Math.max(0, subtotal - discount))}</b>
+                <b className="text-[var(--ink)]">
+                  {fmt(Math.max(0, subtotal - discount))}
+                </b>
               </div>
             )}
           </dl>
 
-          {/* Error */}
+          {/* Error — MOBILE: shown in the sticky bar instead */}
           {error && (
-            <p className="mt-4 text-sm text-red-600 font-medium" role="alert">
+            <p
+              className="mt-4 text-sm text-red-600 font-medium max-lg:hidden"
+              role="alert"
+            >
               ⚠ {error}
             </p>
           )}
 
           {/* Terms + Submit */}
           <div className="mt-5">
-            <label className="flex items-start gap-2.5 mb-4 text-sm text-[var(--mute)] cursor-pointer">
+            <label className="flex items-start gap-3 lg:mb-4 text-sm text-[var(--mute)] cursor-pointer py-1">
               <input
                 type="checkbox"
                 checked={termsChecked}
                 onChange={(e) => setTermsChecked(e.target.checked)}
-                className="mt-0.5 w-4 h-4 accent-[var(--ink)]"
+                className="mt-0.5 w-5 h-5 sm:w-4 sm:h-4 shrink-0 accent-[var(--ink)]"
               />
               <span>
                 আমি{" "}
@@ -830,18 +869,55 @@ export default function CheckoutClient({ prefill, delivery }: Props) {
                 পড়েছি ও সম্মত।
               </span>
             </label>
+            {/* Desktop submit (mobile uses the sticky bar) */}
+            <div className="hidden lg:block">
+              <button
+                type="submit"
+                disabled={submitting || !items.length}
+                className="w-full h-[52px] rounded-2xl bg-[var(--ink)] text-[var(--bg)] font-semibold text-base hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {submitting ? "প্রক্রিয়া করা হচ্ছে…" : "অর্ডার কনফার্ম করুন"}
+              </button>
+              <p className="text-xs text-[var(--mute)] text-center mt-3">
+                ৭ দিনের মধ্যে ফ্রি সাইজ এক্সচেঞ্জ
+              </p>
+            </div>
+          </div>
+        </aside>
+
+        {/* MOBILE: sticky bottom bar — total + confirm always reachable */}
+        <div
+          className="lg:hidden fixed inset-x-0 bottom-0 z-40 border-t border-[var(--line)] bg-[var(--bg)] px-4 pt-3 shadow-[0_-8px_30px_rgba(0,0,0,.08)]"
+          style={{
+            paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom, 0px))",
+          }}
+        >
+          {error && (
+            <p
+              className="text-xs text-red-600 font-medium mb-2 line-clamp-2"
+              role="alert"
+            >
+              ⚠ {error}
+            </p>
+          )}
+          <div className="flex items-center gap-3 max-w-6xl mx-auto">
+            <div className="min-w-0 shrink-0">
+              <p className="text-[11px] text-[var(--mute)] leading-none mb-1">
+                সর্বমোট
+              </p>
+              <p className="font-display font-extrabold text-xl leading-none">
+                {displayTotal}
+              </p>
+            </div>
             <button
               type="submit"
               disabled={submitting || !items.length}
-              className="w-full h-[52px] rounded-2xl bg-[var(--ink)] text-[var(--bg)] font-semibold text-base hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+              className="flex-1 h-12 rounded-2xl bg-[var(--ink)] text-[var(--bg)] font-semibold text-[15px] active:scale-[.98] transition-transform disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {submitting ? "প্রক্রিয়া করা হচ্ছে…" : "অর্ডার কনফার্ম করুন"}
             </button>
-            <p className="text-xs text-[var(--mute)] text-center mt-3">
-              ৭ দিনের মধ্যে ফ্রি সাইজ এক্সচেঞ্জ
-            </p>
           </div>
-        </aside>
+        </div>
       </form>
     </main>
   );

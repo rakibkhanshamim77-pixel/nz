@@ -18,8 +18,9 @@ import type {
 } from "./_components/account.types";
 
 export const metadata: Metadata = {
-  title: "আমার অ্যাকাউন্ট – Neeshanz",
-  description: "আপনার অর্ডার, প্রোফাইল এবং ঠিকানা পরিচালনা করুন।",
+  title: "My Account – Neeshanz",
+  description: "Manage your orders, profile and delivery addresses.",
+  robots: { index: false, follow: false },
 };
 
 const ACTIVE_STATUSES = new Set(["pending", "confirmed", "processing", "shipped"]);
@@ -113,10 +114,10 @@ export default async function MyAccountPage() {
   }
 
   return (
-    <main className="max-w-6xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10 pb-20">
+    <main className="max-w-6xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10 pb-6">
       <AccountHeader user={user} />
 
-      <div className="grid lg:grid-cols-[250px_minmax(0,1fr)] gap-6 lg:gap-8 items-start">
+      <div className="grid lg:grid-cols-[220px_minmax(0,1fr)] gap-4 lg:gap-8 items-start">
         <AccountSidebar orderCount={orders.length} addressCount={addresses.length} />
 
         <div className="space-y-6">

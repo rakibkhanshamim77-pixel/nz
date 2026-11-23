@@ -149,6 +149,10 @@ const ProductSchema = new Schema<IProduct>(
 
 ProductSchema.index({ category: 1 });
 ProductSchema.index({ stock: 1 });
+// Composite indexes for the most common published-product query patterns
+ProductSchema.index({ isActive: 1, isFeatured: 1 });
+ProductSchema.index({ isActive: 1, createdAt: -1 });
+ProductSchema.index({ isActive: 1, salePrice: 1 });
 
 // Prevent model recompilation during Next.js hot reload
 const Product: Model<IProduct> =

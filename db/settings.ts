@@ -49,11 +49,42 @@ export interface InventorySettings {
   lowStockThreshold: number;
 }
 
+export interface ContactSettings {
+  heroTitle: string;
+  heroDescription: string;
+  phone: string;
+  whatsapp: string;
+  supportEmail: string;
+  address: string;
+  businessHours: string;
+  mapUrl: string;
+  facebook: string;
+  instagram: string;
+  otherSocialLinks: string;
+  formEnabled: boolean;
+  successMessage: string;
+  seoTitle: string;
+  seoDescription: string;
+}
+
+export interface MaintenanceSettings {
+  enabled: boolean;
+  message: string;
+}
+
+export const DEFAULT_MAINTENANCE_SETTINGS: MaintenanceSettings = {
+  enabled: false,
+  message:
+    "আমরা সাইটটি আরও উন্নত করতে রক্ষণাবেক্ষণ কাজ করছি। শীঘ্রই আবার চালু হবে — ধন্যবাদ আপনার ধৈর্যের জন্য।",
+};
+
 export interface StoreConfig {
   store: StoreSettings;
   delivery: DeliverySettings;
   payments: PaymentSettings;
   inventory: InventorySettings;
+  contact?: Partial<ContactSettings>;
+  maintenance?: Partial<MaintenanceSettings>;
 }
 
 export const SETTINGS_LIMITS = {
@@ -70,6 +101,27 @@ export const SETTINGS_LIMITS = {
  * existed: ৳60 inside Dhaka, ৳120 outside, and free delivery OFF (the checkout
  * UI advertised a ৳1,500 threshold that was never actually applied).
  */
+export const DEFAULT_CONTACT_SETTINGS: ContactSettings = {
+  heroTitle: "Get in Touch",
+  heroDescription:
+    "We're here to help. Have a question about your order, products, or anything else? We'd love to hear from you.",
+  phone: "",
+  whatsapp: "",
+  supportEmail: "support@neeshanz.com",
+  address: "",
+  businessHours: "Saturday – Thursday, 10 AM – 8 PM",
+  mapUrl: "",
+  facebook: "",
+  instagram: "",
+  otherSocialLinks: "",
+  formEnabled: true,
+  successMessage:
+    "Thank you for contacting us! We'll get back to you within 24 hours. Your reference ID is:",
+  seoTitle: "Contact Us – Neeshanz",
+  seoDescription:
+    "Contact Neeshanz for any questions about orders, products, delivery, or returns. We're here to help.",
+};
+
 export const DEFAULT_SETTINGS: StoreConfig = {
   store: {
     name: "Neeshanz",
@@ -91,6 +143,7 @@ export const DEFAULT_SETTINGS: StoreConfig = {
   inventory: {
     lowStockThreshold: 5,
   },
+  contact: DEFAULT_CONTACT_SETTINGS,
 };
 
 /** Dhaka is districtId 1 in the BD location dataset. */

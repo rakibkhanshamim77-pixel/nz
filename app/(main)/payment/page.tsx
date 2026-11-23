@@ -10,7 +10,10 @@ import PaymentClient from "./_component/PaymentClient";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "পেমেন্ট — Neeshanz" };
+export const metadata = {
+  title: "Payment – Neeshanz",
+  robots: { index: false, follow: false },
+};
 
 interface Props {
   searchParams: { orderId?: string; token?: string };

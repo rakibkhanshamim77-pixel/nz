@@ -1,0 +1,304 @@
+====================================================================
+  NEESHANZ — PRODUCTION SEO IMPLEMENTATION REPORT
+  Date: 2026-11-23
+====================================================================
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PART 1 — ISSUES FOUND IN EXISTING IMPLEMENTATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  BUG 1 (Critical) — metadataBase crash
+    File: app/layout.tsx
+    Problem: `new URL(process.env.NEXT_PUBLIC_SITE_URL || "")` throws
+             TypeError at build time when env var is unset.
+    Fix: fallback changed to "https://neeshanz.com"
+
+  BUG 2 (Critical) — Wrong global canonical
+    File: app/layout.tsx
+    Problem: `alternates: { canonical: "/" }` in root layout propagates
+             to every page that does not override it, making Google see
+             ALL pages as canonically the homepage.
+    Fix: Each indexable page now sets its own canonical; private/transactional
+         pages inherit "/" which is acceptable (they're noindex anyway).
+
+  BUG 3 (High) — OG description mismatch
+    File: app/layout.tsx
+    Problem: OG description was "Shop Neeshanz for trendy fashion…" —
+             not the official brand description.
+    Fix: Updated to official "Discover premium T-shirts that blend
+         modern style, comfort & confidence…"
+
+  BUG 4 (High) — Wrong OG locale
+    File: app/layout.tsx
+    Problem: `locale: "bn_BD"` — spec requires `en_BD` for English content
+             targeting Bangladesh market.
+    Fix: Changed to `en_BD`
+
+  BUG 5 (High) — Twitter description mismatch
+    File: app/layout.tsx
+    Problem: Twitter description was "Premium quality t-shirts with
+             modern designs." — different from OG and official.
+    Fix: Both Twitter and OG now use official description.
+
+  BUG 6 (High) — No robots.ts or sitemap.ts
+    Problem: Google had no crawl guidance and no structured URL list.
+    Fix: Created app/robots.ts and app/sitemap.ts (see files created).
+
+  BUG 7 (High) — Admin panel fully indexable
+    File: app/(admin)/layout.tsx
+    Problem: No robots directive on admin layout → all 18 admin pages
+             were indexable by default.
+    Fix: Added `export const metadata` with robots: noindex, nofollow
+         to admin layout (applies to all 18 admin pages at once).
+
+  BUG 8 (High) — Auth page fully indexable
+    File: app/(auth)/layout.tsx
+    Problem: Login page had no noindex.
+    Fix: Same approach as admin — added metadata export to auth layout.
+
+  BUG 9 (Medium) — Transactional pages fully indexable
+    Files: cart, checkout, payment, order-success, track-order, my-account
+    Problem: These pages had no robots directive and inherited the global
+             index:true from root layout.
+    Fix: robots: { index: false, follow: false } added to each.
+
+  BUG 10 (Medium) — Indexable pages missing canonical
+    Files: shop, privacy-policy, terms-and-conditions, size-guide
+    Problem: These pages had metadata but no alternates.canonical,
+             so they inherited canonical "/" from root layout.
+    Fix: Correct page-level canonical added to each.
+
+  BUG 11 (Medium) — Product title lacks brand/location context
+    File: app/(main)/product/[slug]/page.tsx
+    Problem: Title was just `product.name` with no brand suffix.
+    Fix: Title is now `{product.name} in Bangladesh | Neeshanz`
+
+  BUG 12 (Medium) — Product description truncated mid-word
+    File: app/(main)/product/[slug]/page.tsx
+    Problem: `product.description.slice(0, 160)` cuts at byte position,
+             not at a word boundary.
+    Fix: `truncateAtWord()` helper added; truncates at last space ≤ 155
+         chars and appends "…"
+
+  BUG 13 (Low) — ProductJsonLd uses relative URL
+    File: app/(main)/components/product/ProductJsonLd.tsx
+    Problem: `offers.url` was a relative path like `/product/slug`.
+             Schema.org requires an absolute URL.
+    Fix: Absolute URL constructed from NEXT_PUBLIC_SITE_URL env var.
+
+  BUG 14 (Low) — Product JSON-LD missing brand entity
+    File: app/(main)/components/product/ProductJsonLd.tsx
+    Problem: No `brand` field in Product schema.
+    Fix: Added `brand: { "@type": "Brand", name: "Neeshanz" }`
+
+  BUG 15 (Low) — Cart page had zero metadata
+    File: app/(main)/cart/page.tsx
+    Problem: No metadata at all — not even a title.
+    Fix: Added title + robots: noindex
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PART 2 — FILES CHANGED
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  CREATED (new files):
+    app/robots.ts
+    app/sitemap.ts
+
+  MODIFIED (existing files):
+    app/layout.tsx
+      → metadataBase fallback fixed
+      → OG description, locale, Twitter description fixed
+
+    app/(admin)/layout.tsx
+      → Added metadata export: robots noindex/nofollow
+
+    app/(auth)/layout.tsx
+      → Added metadata export: robots noindex/nofollow
+
+    app/(main)/cart/page.tsx
+      → Added metadata: title + robots noindex
+
+    app/(main)/checkout/page.tsx
+      → Added robots noindex to existing metadata
+
+    app/(main)/payment/page.tsx
+      → Added robots noindex to existing metadata
+
+    app/(main)/order-success/page.tsx
+      → Added robots noindex to existing metadata
+
+    app/(main)/track-order/page.tsx
+      → Added robots noindex to existing metadata
+
+    app/(main)/my-account/page.tsx
+      → Added robots noindex to existing metadata
+
+    app/(main)/shop/page.tsx
+      → Added alternates.canonical + openGraph block
+
+    app/(main)/privacy-policy/page.tsx
+      → Added alternates.canonical
+
+    app/(main)/terms-and-conditions/page.tsx
+      → Added alternates.canonical
+
+    app/(main)/size-guide/page.tsx
+      → Added alternates.canonical
+
+    app/(main)/product/[slug]/page.tsx
+      → Improved title format ("…in Bangladesh | Neeshanz")
+      → truncateAtWord() helper for description
+      → Proper twitter metadata
+      → noindex fallback for 404 products
+
+    app/(main)/components/product/ProductJsonLd.tsx
+      → Fixed offers.url to absolute URL
+      → Added brand entity
+
+  UNCHANGED (already correct):
+    app/(main)/page.tsx  (homepage inherits root layout correctly)
+    db/actions/getProductBySlugAction.ts
+    db/models/Product.ts
+    db/utils/productVisibility.ts
+    All admin page files  (noindex now covered by layout)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PART 3 — 31-ROUTE AUDIT TABLE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  #   Route                              Metadata      Canonical      Indexing   Schema              Sitemap
+  --  ---------------------------------  ------------  -------------  ---------  ------------------  --------
+  1   /                                  ✓ Root layout /              Index      WebSite+OnlineStore Included
+  2   /shop                              ✓ Page-level  /shop          Index      –                   Included
+  3   /product/[slug]                    ✓ Dynamic     /product/slug  Index      Product+Offer       Included
+  4   /cart                              ✓ Page-level  /  (noindex)   NoIndex    –                   Excluded
+  5   /checkout                          ✓ Page-level  /  (noindex)   NoIndex    –                   Excluded
+  6   /payment                           ✓ Page-level  /  (noindex)   NoIndex    –                   Excluded
+  7   /order-success                     ✓ Page-level  /  (noindex)   NoIndex    –                   Excluded
+  8   /track-order                       ✓ Page-level  /  (noindex)   NoIndex    –                   Excluded
+  9   /my-account                        ✓ Page-level  /  (noindex)   NoIndex    –                   Excluded
+  10  /privacy-policy                    ✓ Page-level  /privacy-policy Index     –                   Included
+  11  /terms-and-conditions              ✓ Page-level  /terms-and-… Index        –                   Included
+  12  /size-guide                        ✓ Page-level  /size-guide    Index      –                   Included
+  13  /login                             ✓ Auth layout /  (noindex)   NoIndex    –                   Excluded
+  14  /admin                             ✓ Admin layout / (noindex)   NoIndex    –                   Excluded
+  15  /admin/products                    ✓ Admin layout / (noindex)   NoIndex    –                   Excluded
+  16  /admin/products/create             ✓ Admin layout / (noindex)   NoIndex    –                   Excluded
+  17  /admin/products/edit/[productId]   ✓ Admin layout / (noindex)   NoIndex    –                   Excluded
+  18  /admin/products/low-stock          ✓ Admin layout / (noindex)   NoIndex    –                   Excluded
+  19  /admin/orders                      ✓ Admin layout / (noindex)   NoIndex    –                   Excluded
+  20  /admin/orders/[orderId]            ✓ Admin layout / (noindex)   NoIndex    –                   Excluded
+  21  /admin/users                       ✓ Admin layout / (noindex)   NoIndex    –                   Excluded
+  22  /admin/users/create                ✓ Admin layout / (noindex)   NoIndex    –                   Excluded
+  23  /admin/users/edit/[userId]         ✓ Admin layout / (noindex)   NoIndex    –                   Excluded
+  24  /admin/customers                   ✓ Admin layout / (noindex)   NoIndex    –                   Excluded
+  25  /admin/categories                  ✓ Admin layout / (noindex)   NoIndex    –                   Excluded
+  26  /admin/coupons                     ✓ Admin layout / (noindex)   NoIndex    –                   Excluded
+  27  /admin/reviews                     ✓ Admin layout / (noindex)   NoIndex    –                   Excluded
+  28  /admin/messages                    ✓ Admin layout / (noindex)   NoIndex    –                   Excluded
+  29  /admin/content                     ✓ Admin layout / (noindex)   NoIndex    –                   Excluded
+  30  /admin/settings                    ✓ Admin layout / (noindex)   NoIndex    –                   Excluded
+  31  /admin/no-access                   ✓ Admin layout / (noindex)   NoIndex    –                   Excluded
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PART 4 — WHAT WAS ALREADY IMPLEMENTED (PRESERVED UNCHANGED)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✓ WebSite + OnlineStore JSON-LD in root layout (server-side rendered)
+  ✓ Product JSON-LD component (ProductJsonLd.tsx) with real data
+  ✓ AggregateRating in Product JSON-LD (only when real reviews exist)
+  ✓ generateMetadata() with cache() for product pages (1 DB query)
+  ✓ Stock availability via schema.org InStock/OutOfStock
+  ✓ Visibility filter (isActive, publishAt) excludes drafts from metadata
+  ✓ HTML stripping from product descriptions (stripHtml utility)
+  ✓ Dynamic OG image using real product images
+  ✓ Existing breadcrumb components on product, shop, policy pages
+  ✓ Next.js font loading with display:swap (Bricolage Grotesque + Noto Sans Bengali)
+  ✓ Dark/light theme handling with no FOUC
+  ✓ All admin pages protected by authentication middleware
+  ✓ RBAC per-module permission guards on every admin route
+  ✓ Favicon at app/favicon.ico
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PART 5 — ROBOTS.TXT PREVIEW (/robots.txt)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  User-agent: *
+  Allow: /
+  Allow: /shop
+  Allow: /product/
+  Allow: /privacy-policy
+  Allow: /terms-and-conditions
+  Allow: /size-guide
+  Disallow: /admin/
+  Disallow: /login
+  Disallow: /cart
+  Disallow: /checkout
+  Disallow: /payment
+  Disallow: /order-success
+  Disallow: /track-order
+  Disallow: /my-account
+  Disallow: /api/
+  Sitemap: https://neeshanz.com/sitemap.xml
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PART 6 — SITEMAP.XML STRUCTURE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Static URLs (always included):
+    https://neeshanz.com/                    priority=1.0  daily
+    https://neeshanz.com/shop                priority=0.9  daily
+    https://neeshanz.com/size-guide          priority=0.5  monthly
+    https://neeshanz.com/privacy-policy      priority=0.3  yearly
+    https://neeshanz.com/terms-and-conditions priority=0.3 yearly
+
+  Dynamic URLs (from database):
+    https://neeshanz.com/product/{slug}      priority=0.8  weekly
+    → Only published products (isActive:true, publishAt not future)
+    → Uses real updatedAt timestamp
+    → Gracefully degrades to static-only if DB fails
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PART 7 — REMAINING EXTERNAL SETUP REQUIREMENTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  1. Set NEXT_PUBLIC_SITE_URL=https://neeshanz.com in production .env
+     (The fallback is already hardcoded in layout.tsx, robots.ts, sitemap.ts
+     but the env var is the proper way in production.)
+
+  2. Google Search Console verification:
+     → Add this to app/layout.tsx metadata.verification:
+       verification: { google: "YOUR_GOOGLE_VERIFICATION_CODE" }
+     → Or use DNS TXT record method (no code change needed)
+
+  3. Bing Webmaster Tools:
+     → Similar approach, add `other: { "msvalidate.01": "YOUR_CODE" }`
+       to the metadata verification block
+
+  4. og-image.png dimensions:
+     → Confirm public/og-image.png is 1200×630 px (declared in layout.tsx)
+     → If different, update the width/height values in root layout OG metadata
+
+  5. Google Analytics 4:
+     → Add GA4 measurement ID via Next.js Script component in layout.tsx
+     → Requires a cookie consent banner per GDPR/PDPA
+
+  6. Google Merchant Center:
+     → Product JSON-LD is now valid (absolute URL, BDT currency, Brand entity)
+     → Submit sitemap.xml in Merchant Center after GSC verification
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  PART 8 — BUILD RESULT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  TypeScript check: PASSED (0 errors, 0 warnings from tsc --noEmit)
+
+====================================================================

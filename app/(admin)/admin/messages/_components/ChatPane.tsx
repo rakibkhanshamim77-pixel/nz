@@ -63,7 +63,6 @@ export default function ChatPane({
   loading,
   typing,
   sending,
-  adminName,
   totalUnread,
   onSend,
   onNote,
@@ -90,6 +89,7 @@ export default function ChatPane({
     setMode("reply");
     setPopQR(false);
     setPopEmo(false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversation?._id]);
 
   function autosize(ta: HTMLTextAreaElement) {

@@ -9,8 +9,17 @@ import ShopGridSkeleton from "./_component/ShopGridSkeleton";
 import ShopPaginationClient from "./_component/ShopPaginationClient";
 
 export const metadata: Metadata = {
-  title: "শপ – Neeshanz",
-  description: "প্রিমিয়াম টি-শার্ট, পোলো ও শার্ট — সেরা কোয়ালিটিতে সেরা দামে।",
+  title: "Shop – Neeshanz",
+  description:
+    "Shop premium T-shirts, polos & shirts at the best prices. Free delivery available across Bangladesh.",
+  alternates: { canonical: "/shop" },
+  openGraph: {
+    title: "Shop – Neeshanz",
+    description:
+      "Shop premium T-shirts, polos & shirts at the best prices. Free delivery available across Bangladesh.",
+    url: "/shop",
+    type: "website",
+  },
 };
 
 interface PageProps {
@@ -28,23 +37,26 @@ interface PageProps {
 }
 
 function splitParam(val: string | undefined): string[] {
-  return (val ?? "").split(",").map((v) => v.trim()).filter(Boolean);
+  return (val ?? "")
+    .split(",")
+    .map((v) => v.trim())
+    .filter(Boolean);
 }
 
 export default async function ShopPage({ searchParams }: PageProps) {
-  const page      = Math.max(1, parseInt(searchParams.page ?? "1") || 1);
-  const maxPrice  = parseInt(searchParams.maxPrice ?? "0") || undefined;
+  const page = Math.max(1, parseInt(searchParams.page ?? "1") || 1);
+  const maxPrice = parseInt(searchParams.maxPrice ?? "0") || undefined;
 
   const [result, categories] = await Promise.all([
     getShopProducts({
-      q:          searchParams.q,
+      q: searchParams.q,
       categories: splitParam(searchParams.cat),
-      sizes:      splitParam(searchParams.size),
-      colors:     splitParam(searchParams.color),
+      sizes: splitParam(searchParams.size),
+      colors: splitParam(searchParams.color),
       maxPrice,
-      inStock:    searchParams.inStock === "1",
-      onSale:     searchParams.onSale === "1",
-      sort:       searchParams.sort,
+      inStock: searchParams.inStock === "1",
+      onSale: searchParams.onSale === "1",
+      sort: searchParams.sort,
       page,
     }),
     getCategories(10),
@@ -55,7 +67,10 @@ export default async function ShopPage({ searchParams }: PageProps) {
       <ShopBreadcrumb />
 
       <ShopFiltersShell categories={categories} totalCount={result.totalCount}>
-        <Suspense key={JSON.stringify(searchParams)} fallback={<ShopGridSkeleton />}>
+        <Suspense
+          key={JSON.stringify(searchParams)}
+          fallback={<ShopGridSkeleton />}
+        >
           <ShopGrid products={result.products} />
         </Suspense>
 

@@ -1,3 +1,6 @@
+// Pure SSG — static content, no DB calls, no revalidation needed
+export const revalidate = false;
+
 import type { Metadata } from "next";
 import TermsBreadcrumb from "./_components/TermsBreadcrumb";
 import TermsHeader from "./_components/TermsHeader";
@@ -5,8 +8,9 @@ import TermsSections from "./_components/TermsSections";
 import TermsContact from "./_components/TermsContact";
 
 export const metadata: Metadata = {
-  title: "শর্তাবলি – Neeshanz",
-  description: "Neeshanz-এর ব্যবহারের শর্তাবলি — অর্ডার, পেমেন্ট, ডেলিভারি ও রিটার্ন নীতি।",
+  title: "Terms & Conditions – Neeshanz",
+  description: "Neeshanz terms of service — covering orders, payments, delivery and return policy.",
+  alternates: { canonical: "/terms-and-conditions" },
 };
 
 export default function TermsAndConditionsPage() {
