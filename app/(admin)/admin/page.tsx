@@ -254,6 +254,29 @@ export default async function AdminDashboardPage({
       />
 
       <main className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8 max-w-[1400px]">
+
+        {/* Quick actions */}
+        <section className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+          {[
+            { label: "New Order", sub: "Add manually", href: "/admin/orders", color: "#6366f1", icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg> },
+            { label: "Add Product", sub: "Create listing", href: "/admin/products/create", color: "#10b981", icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-4 0v2"/></svg> },
+            { label: "Pending Pay", sub: `${pendingPayments.length} waiting`, href: "/admin/orders?payment=pending", color: "#f59e0b", icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg> },
+            { label: "Low Stock", sub: `${lowStock.length} products`, href: "/admin/products/low-stock", color: "#ef4444", icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg> },
+          ].map((a) => (
+            <Link key={a.href} href={a.href}
+              className="card p-4 flex items-center gap-3 hover:scale-[1.01] transition-transform group">
+              <span className="w-10 h-10 rounded-xl grid place-items-center shrink-0"
+                style={{ background: a.color + "1a", color: a.color }}>
+                {a.icon}
+              </span>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold truncate">{a.label}</p>
+                <p className="text-xs truncate" style={{ color: "var(--mute)" }}>{a.sub}</p>
+              </div>
+            </Link>
+          ))}
+        </section>
+
         {canOrders && (
           <>
             {/* KPIs */}

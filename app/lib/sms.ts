@@ -114,6 +114,10 @@ const STATUS_MESSAGES: Record<string, (name: string, orderNumber: string) => str
     `প্রিয় ${name},\n\nআপনার অর্ডার ${num} রিফান্ড সম্পন্ন হয়েছে। 💸\nরিফান্ড আপনার পেমেন্ট পদ্ধতিতে পৌঁছাতে ৩-৭ কার্যদিবস লাগতে পারে।\n\nঅর্ডার দেখুন:\n${trackLink(num)}\n\nআবার কেনাকাটা করুন:\n${process.env.NEXT_PUBLIC_SITE_URL}\n\nধন্যবাদ — Neeshanz`,
 };
 
+export async function sendRawMessage(phone: string, message: string): Promise<void> {
+  await send(phone, message);
+}
+
 export async function sendOrderStatusUpdate(
   phone: string,
   name: string,

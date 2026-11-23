@@ -6,6 +6,9 @@ import Faq from "@/db/models/Faq";
 import { guardPage } from "@/app/utils/authz";
 import { revalidatePath } from "next/cache";
 import type { ContentSlug } from "@/db/content";
+import { sanitizeRichText } from "@/db/utils/sanitizeHtml";
+
+const RICH_TEXT_SLUGS: ContentSlug[] = ["terms", "return-policy", "privacy"];
 
 async function guardContent() {
   return guardPage("content_management");
@@ -22,13 +25,23 @@ export async function saveContent(
   await dbConnect();
 
   try {
+    const sanitized = RICH_TEXT_SLUGS.includes(slug) && typeof data.body === "string"
+      ? { ...data, body: sanitizeRichText(data.body) }
+      : data;
+
     await ContentModel.findOneAndUpdate(
       { slug },
-      { $set: { data } },
+      { $set: { data: sanitized } },
       { upsert: true, new: true },
     );
     revalidatePath("/");
     revalidatePath("/shop");
+    revalidatePath("/about");
+    revalidatePath("/size-guide");
+    revalidatePath("/terms-and-conditions");
+    revalidatePath("/return-policy");
+    revalidatePath("/privacy-policy");
+    revalidatePath("/faq");
     revalidatePath("/admin/content");
     return { ok: true };
   } catch {
@@ -61,6 +74,7 @@ export async function createFaq(
     order: input.order || 0,
     isPublished: input.isPublished,
   });
+  revalidatePath("/faq");
   revalidatePath("/admin/content");
   return { ok: true };
 }
@@ -81,6 +95,7 @@ export async function updateFaq(
     order: input.order || 0,
     isPublished: input.isPublished,
   });
+  revalidatePath("/faq");
   revalidatePath("/admin/content");
   return { ok: true };
 }
@@ -91,6 +106,7 @@ export async function deleteFaq(
   await guardContent();
   await dbConnect();
   await Faq.findByIdAndDelete(id);
+  revalidatePath("/faq");
   revalidatePath("/admin/content");
   return { ok: true };
 }
@@ -102,6 +118,7 @@ export async function toggleFaqPublished(
   await guardContent();
   await dbConnect();
   await Faq.findByIdAndUpdate(id, { isPublished });
+  revalidatePath("/faq");
   revalidatePath("/admin/content");
   return { ok: true };
 }

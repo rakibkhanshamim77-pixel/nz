@@ -44,7 +44,7 @@ export default async function AdminContentPage({
   const [contentDocs, faqDocs, subscriberCount] = await Promise.all([
     // Fetch relevant content slugs
     ContentModel.find({
-      slug: { $in: ["announcement", "sale-banner", "newsletter", "delivery-exchange", "about", "terms", "return-policy", "privacy"] },
+      slug: { $in: ["announcement", "sale-banner", "newsletter", "delivery-exchange", "about", "size-guide", "terms", "return-policy", "privacy"] },
     }).lean(),
     tab === "faqs" ? Faq.find({}).sort({ order: 1, createdAt: -1 }).lean() : Promise.resolve([]),
     tab === "newsletter" ? Newsletter.countDocuments({ status: "subscribed" }) : Promise.resolve(0),
@@ -63,6 +63,7 @@ export default async function AdminContentPage({
   const deliveryData = getContent("delivery-exchange");
   const pagesData = {
     about: getContent("about"),
+    "size-guide": getContent("size-guide"),
     terms: getContent("terms"),
     "return-policy": getContent("return-policy"),
     privacy: getContent("privacy"),

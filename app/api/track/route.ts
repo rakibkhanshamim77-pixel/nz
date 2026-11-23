@@ -75,13 +75,7 @@ export async function GET(req: NextRequest) {
 
   const normalizedPhone = phone ? normPhone(phone) : null;
 
-  /* Demo — orderNumber-only lookup */
-  if (!normalizedPhone && orderNumber) {
-    const o = DEMO_ORDERS.find(d => d.orderNumber === orderNumber);
-    return o ? NextResponse.json({ orders: [o] }) : NextResponse.json({ error: "notfound" }, { status: 404 });
-  }
-
-  /* Demo — phone lookup */
+  /* Demo — phone lookup only (never intercept orderNumber-only queries) */
   if (normalizedPhone === "01712345678") {
     if (orderNumber) {
       const o = DEMO_ORDERS.find(d => d.orderNumber === orderNumber);

@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { User, Settings, LogOut } from "lucide-react";
+import { User, Settings, LogOut, LayoutDashboard } from "lucide-react";
 import { logout } from "@/db/actions/auth.action";
 import type { AuthUser } from "@/app/utils/getUser";
 
@@ -11,24 +11,22 @@ interface UserMenuProps {
   user: AuthUser | null;
 }
 
+const ADMIN_ROLES = new Set(["admin", "superadmin", "manager", "staff"]);
+
 export default function UserMenu({ user }: UserMenuProps) {
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const wrapRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
-  // Close on outside click
   useEffect(() => {
     function onPointer(e: MouseEvent) {
-      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false);
     }
     document.addEventListener("mousedown", onPointer);
     return () => document.removeEventListener("mousedown", onPointer);
   }, []);
 
-  // Close on Escape
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") setOpen(false);
@@ -59,6 +57,15 @@ export default function UserMenu({ user }: UserMenuProps) {
   }
 
   const displayName = user.name || "আমার অ্যাকাউন্ট";
+  const isAdmin = ADMIN_ROLES.has(user.role);
+
+  const initials = displayName
+    .trim()
+    .split(/\s+/)
+    .map((w: string) => w[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
 
   return (
     <div ref={wrapRef} className="relative hidden sm:block">
@@ -68,70 +75,58 @@ export default function UserMenu({ user }: UserMenuProps) {
         aria-expanded={open}
         aria-haspopup="true"
       >
-        <span
-          className="w-8 h-8 rounded-full grid place-items-center shrink-0"
-          style={{ background: "var(--soft)" }}
-        >
-          <User className="w-4 h-4" />
+        <span className="w-8 h-8 rounded-full grid place-items-center shrink-0 font-bold text-xs"
+          style={{ background: "var(--ink)", color: "var(--bg)" }}>
+          {initials}
         </span>
         <span className="leading-tight">
           <b className="block text-sm">{displayName}</b>
           <span className="text-xs text-mute">{user.phone}</span>
         </span>
-        <svg
-          className={`w-3.5 h-3.5 text-mute ml-1 transition-transform ${open ? "rotate-180" : ""}`}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={2.5}
-          viewBox="0 0 24 24"
-        >
+        <svg className={`w-3.5 h-3.5 text-mute ml-1 transition-transform ${open ? "rotate-180" : ""}`}
+          fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
           <path d="m6 9 6 6 6-6" />
         </svg>
       </button>
 
       {open && (
-        <div
-          className="absolute right-0 top-full mt-2 w-56 card p-1.5 z-50"
-          role="menu"
-        >
-          {/* User info row */}
+        <div className="absolute right-0 top-full mt-2 w-60 card p-1.5 z-50 shadow-lg" role="menu">
+          {/* User info */}
           <div className="px-3 py-2.5 mb-1">
             <p className="text-sm font-semibold truncate">{displayName}</p>
-            <p className="text-xs text-mute truncate">{user.phone}</p>
+            <p className="text-xs truncate" style={{ color: "var(--mute)" }}>{user.phone}</p>
+            {isAdmin && (
+              <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide"
+                style={{ background: "var(--ink)", color: "var(--bg)" }}>
+                {user.role}
+              </span>
+            )}
           </div>
-          <div
-            className="h-px mx-1 mb-1"
-            style={{ background: "var(--line)" }}
-          />
+          <div className="h-px mx-1 mb-1" style={{ background: "var(--line)" }} />
 
-          <Link
-            href="/my-account"
-            onClick={() => setOpen(false)}
-            role="menuitem"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm hover:bg-soft transition-colors"
-          >
-            <Settings
-              className="w-4 h-4 shrink-0"
-              style={{ color: "var(--mute)" }}
-            />
+          <Link href="/my-account" onClick={() => setOpen(false)} role="menuitem"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm hover:bg-soft transition-colors">
+            <Settings className="w-4 h-4 shrink-0" style={{ color: "var(--mute)" }} />
             প্রোফাইল সেটিংস
           </Link>
 
-          <div
-            className="h-px mx-1 my-1"
-            style={{ background: "var(--line)" }}
-          />
+          {isAdmin && (
+            <>
+              <div className="h-px mx-1 my-1" style={{ background: "var(--line)" }} />
+              <Link href="/admin" onClick={() => setOpen(false)} role="menuitem"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm hover:bg-soft transition-colors">
+                <LayoutDashboard className="w-4 h-4 shrink-0" style={{ color: "var(--mute)" }} />
+                অ্যাডমিন প্যানেল
+              </Link>
+            </>
+          )}
 
-          <button
-            onClick={handleLogout}
-            disabled={isPending}
-            role="menuitem"
+          <div className="h-px mx-1 my-1" style={{ background: "var(--line)" }} />
+
+          <button onClick={handleLogout} disabled={isPending} role="menuitem"
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm hover:bg-soft transition-colors text-left disabled:opacity-50"
-          >
-            <LogOut
-              className="w-4 h-4 shrink-0"
-              style={{ color: "var(--mute)" }}
-            />
+            style={{ color: isPending ? undefined : "var(--ink)" }}>
+            <LogOut className="w-4 h-4 shrink-0" style={{ color: "var(--mute)" }} />
             {isPending ? "লগআউট হচ্ছে…" : "লগআউট"}
           </button>
         </div>

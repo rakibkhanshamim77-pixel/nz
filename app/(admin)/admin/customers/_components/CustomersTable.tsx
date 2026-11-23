@@ -7,12 +7,9 @@ export interface CustomerRow {
   _id: string;
   name?: string;
   phone: string;
-  email?: string;
-  isActive: boolean;
   orderCount: number;
   totalSpent: number;
-  lastLogin?: string;
-  createdAt: string;
+  lastOrderAt?: string;
 }
 
 interface Props {
@@ -22,24 +19,12 @@ interface Props {
 }
 
 function Avatar({ name, size = 36 }: { name: string; size?: number }) {
-  const initials = name
-    .split(" ")
-    .map((w) => w[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-
+  const initials = name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase();
   const colors = [
-    ["#dbeafe", "#2563eb"],
-    ["#dcfce7", "#16a34a"],
-    ["#fce7f3", "#db2777"],
-    ["#fef3c7", "#d97706"],
-    ["#ede9fe", "#7c3aed"],
-    ["#ffedd5", "#ea580c"],
+    ["#dbeafe", "#2563eb"], ["#dcfce7", "#16a34a"], ["#fce7f3", "#db2777"],
+    ["#fef3c7", "#d97706"], ["#ede9fe", "#7c3aed"], ["#ffedd5", "#ea580c"],
   ];
-  const idx = name.charCodeAt(0) % colors.length;
-  const [bg, fg] = colors[idx];
-
+  const [bg, fg] = colors[name.charCodeAt(0) % colors.length];
   return (
     <div
       className="rounded-full flex items-center justify-center font-semibold flex-shrink-0 text-xs"
@@ -59,12 +44,9 @@ export default function CustomersTable({ customers, total, search }: Props) {
 
   function navigate(newQ: string) {
     const params = new URLSearchParams(searchParams.toString());
-    if (newQ) params.set("q", newQ);
-    else params.delete("q");
+    if (newQ) params.set("q", newQ); else params.delete("q");
     params.delete("page");
-    startTransition(() => {
-      router.push(`${pathname}?${params.toString()}`);
-    });
+    startTransition(() => router.push(`${pathname}?${params.toString()}`));
   }
 
   function handleSearch(e: React.FormEvent) {
@@ -74,249 +56,133 @@ export default function CustomersTable({ customers, total, search }: Props) {
 
   return (
     <div className="space-y-4">
-      {/* Search + actions bar */}
+      {/* Search bar */}
       <div
         className="flex flex-col sm:flex-row gap-3 p-4 rounded-xl border items-stretch sm:items-center"
         style={{ background: "var(--surface)", borderColor: "var(--line)" }}
       >
         <form onSubmit={handleSearch} className="flex gap-2 flex-1">
           <div className="relative flex-1">
-            <svg
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              viewBox="0 0 24 24"
-              style={{ color: "var(--mute)" }}
-            >
-              <circle cx={11} cy={11} r={8} />
-              <path d="m21 21-4.35-4.35" />
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" style={{ color: "var(--mute)" }}>
+              <circle cx={11} cy={11} r={8} /><path d="m21 21-4.35-4.35" />
             </svg>
             <input
               type="search"
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="নাম, ফোন বা ইমেইল খুঁজুন…"
+              placeholder="নাম বা ফোন খুঁজুন…"
               className="inp w-full pl-9"
             />
           </div>
-          <button
-            type="submit"
-            disabled={isPending}
-            className="btn-solid px-5 disabled:opacity-50 flex-shrink-0"
-          >
+          <button type="submit" disabled={isPending} className="btn-solid px-5 disabled:opacity-50 flex-shrink-0">
             {isPending ? (
               <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx={12} cy={12} r={10} stroke="currentColor" strokeWidth={4} />
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.4 0 0 5.4 0 12h4z" />
               </svg>
-            ) : (
-              "খুঁজুন"
-            )}
+            ) : "খুঁজুন"}
           </button>
         </form>
         <p className="text-sm flex-shrink-0" style={{ color: "var(--mute)" }}>
-          মোট{" "}
-          <span className="font-semibold" style={{ color: "var(--ink)" }}>
-            {total.toLocaleString()}
-          </span>{" "}
-          কাস্টমার
+          মোট <span className="font-semibold" style={{ color: "var(--ink)" }}>{total.toLocaleString()}</span> কাস্টমার
         </p>
       </div>
 
-      {/* Table */}
-      <div
-        className="rounded-xl border overflow-hidden"
-        style={{ borderColor: "var(--line)", background: "var(--surface)" }}
-      >
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr style={{ borderBottom: "1px solid var(--line)", background: "color-mix(in srgb,var(--line) 40%,var(--surface))" }}>
-                {["কাস্টমার", "যোগাযোগ", "অর্ডার", "মোট খরচ", "শেষ লগইন", "স্ট্যাটাস"].map((h) => (
-                  <th
-                    key={h}
-                    className="text-left px-5 py-3.5 font-semibold text-xs uppercase tracking-wide"
-                    style={{ color: "var(--mute)" }}
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {customers.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="py-20 text-center" style={{ color: "var(--mute)" }}>
-                    <div className="flex flex-col items-center gap-3">
-                      <svg className="w-10 h-10 opacity-30" fill="none" stroke="currentColor" strokeWidth={1.2} viewBox="0 0 24 24">
-                        <circle cx={9} cy={8} r="3.5" />
-                        <path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6" />
-                      </svg>
-                      <p>কোনো কাস্টমার পাওয়া যায়নি</p>
-                    </div>
-                  </td>
-                </tr>
-              )}
-              {customers.map((c, i) => (
-                <tr
-                  key={c._id}
-                  className="transition-colors"
-                  style={{
-                    borderBottom: i < customers.length - 1 ? "1px solid var(--line)" : "none",
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLElement).style.background =
-                      "color-mix(in srgb,var(--line) 20%,var(--surface))";
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLElement).style.background = "transparent";
-                  }}
-                >
-                  {/* Customer */}
-                  <td className="px-5 py-4">
-                    <div className="flex items-center gap-3">
-                      <Avatar name={c.name || c.phone} />
-                      <div>
-                        <p className="font-semibold" style={{ color: "var(--ink)" }}>
-                          {c.name || "নাম নেই"}
-                        </p>
-                        <p className="text-xs mt-0.5" style={{ color: "var(--mute)" }}>
-                          {c.phone}
-                        </p>
-                      </div>
-                    </div>
-                  </td>
-                  {/* Contact */}
-                  <td className="px-5 py-4" style={{ color: "var(--mute)" }}>
-                    {c.email ? (
-                      <span className="text-xs">{c.email}</span>
-                    ) : (
-                      <span className="text-xs opacity-40">—</span>
-                    )}
-                  </td>
-                  {/* Orders */}
-                  <td className="px-5 py-4">
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="inline-flex items-center justify-center w-7 h-7 rounded-lg text-xs font-bold"
-                        style={{
-                          background:
-                            c.orderCount > 0
-                              ? "color-mix(in srgb,#6366f1 12%,transparent)"
-                              : "var(--line)",
-                          color: c.orderCount > 0 ? "#4f46e5" : "var(--mute)",
-                        }}
-                      >
-                        {c.orderCount}
-                      </span>
-                    </div>
-                  </td>
-                  {/* Spent */}
-                  <td className="px-5 py-4">
-                    <span className="font-semibold" style={{ color: c.totalSpent > 0 ? "#16a34a" : "var(--mute)" }}>
-                      {c.totalSpent > 0 ? `৳${c.totalSpent.toLocaleString()}` : "—"}
-                    </span>
-                  </td>
-                  {/* Last login */}
-                  <td className="px-5 py-4 text-xs" style={{ color: "var(--mute)" }}>
-                    {c.lastLogin
-                      ? new Date(c.lastLogin).toLocaleDateString("en-GB", {
-                          day: "2-digit",
-                          month: "short",
-                          year: "numeric",
-                        })
-                      : "—"}
-                  </td>
-                  {/* Status */}
-                  <td className="px-5 py-4">
-                    <span
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium"
-                      style={{
-                        background: c.isActive
-                          ? "color-mix(in srgb,#22c55e 12%,transparent)"
-                          : "color-mix(in srgb,#ef4444 12%,transparent)",
-                        color: c.isActive ? "#15803d" : "#b91c1c",
-                      }}
-                    >
-                      <span
-                        className="w-1.5 h-1.5 rounded-full"
-                        style={{ background: c.isActive ? "#22c55e" : "#ef4444" }}
-                      />
-                      {c.isActive ? "Active" : "Inactive"}
-                    </span>
-                  </td>
-                </tr>
+      {/* Desktop table */}
+      <div className="hidden sm:block rounded-xl border overflow-hidden" style={{ borderColor: "var(--line)", background: "var(--surface)" }}>
+        <table className="w-full text-sm">
+          <thead>
+            <tr style={{ borderBottom: "1px solid var(--line)", background: "color-mix(in srgb,var(--line) 40%,var(--surface))" }}>
+              {["কাস্টমার", "ফোন নম্বর", "অর্ডার", "মোট খরচ", "শেষ অর্ডার"].map((h) => (
+                <th key={h} className="text-left px-5 py-3.5 font-semibold text-xs uppercase tracking-wide" style={{ color: "var(--mute)" }}>
+                  {h}
+                </th>
               ))}
-            </tbody>
-          </table>
-        </div>
-
+            </tr>
+          </thead>
+          <tbody>
+            {customers.length === 0 && (
+              <tr>
+                <td colSpan={5} className="py-20 text-center" style={{ color: "var(--mute)" }}>
+                  <div className="flex flex-col items-center gap-3">
+                    <svg className="w-10 h-10 opacity-30" fill="none" stroke="currentColor" strokeWidth={1.2} viewBox="0 0 24 24">
+                      <circle cx={9} cy={8} r="3.5" />
+                      <path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6" />
+                    </svg>
+                    <p>কোনো কাস্টমার পাওয়া যায়নি</p>
+                  </div>
+                </td>
+              </tr>
+            )}
+            {customers.map((c, i) => (
+              <tr
+                key={c._id}
+                className="transition-colors"
+                style={{ borderBottom: i < customers.length - 1 ? "1px solid var(--line)" : "none" }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = "color-mix(in srgb,var(--line) 20%,var(--surface))"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+              >
+                <td className="px-5 py-4">
+                  <div className="flex items-center gap-3">
+                    <Avatar name={c.name || c.phone} />
+                    <p className="font-semibold" style={{ color: "var(--ink)" }}>{c.name || "নাম নেই"}</p>
+                  </div>
+                </td>
+                <td className="px-5 py-4 font-mono text-sm" style={{ color: "var(--mute)" }}>{c.phone}</td>
+                <td className="px-5 py-4">
+                  <span
+                    className="inline-flex items-center justify-center w-7 h-7 rounded-lg text-xs font-bold"
+                    style={{
+                      background: c.orderCount > 0 ? "color-mix(in srgb,#6366f1 12%,transparent)" : "var(--line)",
+                      color: c.orderCount > 0 ? "#4f46e5" : "var(--mute)",
+                    }}
+                  >
+                    {c.orderCount}
+                  </span>
+                </td>
+                <td className="px-5 py-4">
+                  <span className="font-semibold" style={{ color: c.totalSpent > 0 ? "#16a34a" : "var(--mute)" }}>
+                    {c.totalSpent > 0 ? `৳${c.totalSpent.toLocaleString()}` : "—"}
+                  </span>
+                </td>
+                <td className="px-5 py-4 text-xs" style={{ color: "var(--mute)" }}>
+                  {c.lastOrderAt
+                    ? new Date(c.lastOrderAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
+                    : "—"}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
       {/* Mobile cards */}
       <div className="space-y-2 sm:hidden">
         {customers.map((c) => (
-          <div
-            key={c._id}
-            className="rounded-xl border p-4"
-            style={{ background: "var(--surface)", borderColor: "var(--line)" }}
-          >
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <Avatar name={c.name || c.phone} />
-                <div>
-                  <p className="font-semibold text-sm">{c.name || "নাম নেই"}</p>
-                  <p className="text-xs" style={{ color: "var(--mute)" }}>
-                    {c.phone}
-                  </p>
-                </div>
-              </div>
-              <span
-                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0"
-                style={{
-                  background: c.isActive
-                    ? "color-mix(in srgb,#22c55e 12%,transparent)"
-                    : "color-mix(in srgb,#ef4444 12%,transparent)",
-                  color: c.isActive ? "#15803d" : "#b91c1c",
-                }}
-              >
-                <span className="w-1 h-1 rounded-full" style={{ background: c.isActive ? "#22c55e" : "#ef4444" }} />
-                {c.isActive ? "Active" : "Inactive"}
-              </span>
-            </div>
-            <div
-              className="mt-3 pt-3 grid grid-cols-3 gap-2 text-center border-t"
-              style={{ borderColor: "var(--line)" }}
-            >
+          <div key={c._id} className="rounded-xl border p-4" style={{ background: "var(--surface)", borderColor: "var(--line)" }}>
+            <div className="flex items-center gap-3 mb-3">
+              <Avatar name={c.name || c.phone} />
               <div>
-                <p className="font-bold text-base" style={{ color: "#4f46e5" }}>
-                  {c.orderCount}
-                </p>
-                <p className="text-xs mt-0.5" style={{ color: "var(--mute)" }}>
-                  অর্ডার
-                </p>
+                <p className="font-semibold text-sm">{c.name || "নাম নেই"}</p>
+                <p className="text-xs font-mono" style={{ color: "var(--mute)" }}>{c.phone}</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-2 text-center pt-3 border-t" style={{ borderColor: "var(--line)" }}>
+              <div>
+                <p className="font-bold text-base" style={{ color: "#4f46e5" }}>{c.orderCount}</p>
+                <p className="text-xs mt-0.5" style={{ color: "var(--mute)" }}>অর্ডার</p>
               </div>
               <div>
                 <p className="font-bold text-sm" style={{ color: "#16a34a" }}>
                   {c.totalSpent > 0 ? `৳${c.totalSpent.toLocaleString()}` : "—"}
                 </p>
-                <p className="text-xs mt-0.5" style={{ color: "var(--mute)" }}>
-                  মোট
-                </p>
+                <p className="text-xs mt-0.5" style={{ color: "var(--mute)" }}>মোট</p>
               </div>
               <div>
                 <p className="font-bold text-xs">
-                  {c.lastLogin
-                    ? new Date(c.lastLogin).toLocaleDateString("en-GB", {
-                        day: "2-digit",
-                        month: "short",
-                      })
-                    : "—"}
+                  {c.lastOrderAt ? new Date(c.lastOrderAt).toLocaleDateString("en-GB", { day: "2-digit", month: "short" }) : "—"}
                 </p>
-                <p className="text-xs mt-0.5" style={{ color: "var(--mute)" }}>
-                  লগইন
-                </p>
+                <p className="text-xs mt-0.5" style={{ color: "var(--mute)" }}>শেষ অর্ডার</p>
               </div>
             </div>
           </div>
