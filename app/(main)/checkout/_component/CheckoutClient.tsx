@@ -1,0 +1,848 @@
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useCart } from "@/lib/CartProvider";
+import { type CartItem, readBuyNow, clearBuyNow } from "@/lib/cart";
+import { placeOrder } from "@/db/actions/order.action";
+import { validateCoupon } from "@/db/actions/validateCoupon";
+import { amountToFreeDelivery, deliveryChargeFor, type DeliverySettings } from "@/db/settings";
+import LocationDropdown, {
+  type LocationOption,
+} from "./LocationDropdown";
+import {
+  divisions,
+  getDistrictsByDivision,
+  getUpazilasByDistrict,
+} from "@/data/bd-locations";
+
+interface Prefill {
+  name?: string;
+  phone?: string;
+  email?: string;
+}
+
+interface Props {
+  prefill: Prefill | null;
+  delivery: DeliverySettings;
+}
+
+function fmt(n: number) {
+  return "৳" + n.toLocaleString("bn-BD");
+}
+
+export default function CheckoutClient({ prefill, delivery }: Props) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const isBuyNow = searchParams.get("mode") === "buynow";
+
+  const { items: cartItems, clearCart } = useCart();
+
+  const [items, setItems] = useState<CartItem[]>([]);
+  const [hydrated, setHydrated] = useState(false);
+
+  // Form state
+  const [name, setName] = useState(prefill?.name ?? "");
+  const [phone, setPhone] = useState(prefill?.phone ?? "");
+  const [email, setEmail] = useState(prefill?.email ?? "");
+
+  // Location
+  const [divisionId, setDivisionId] = useState<number | null>(null);
+  const [districtId, setDistrictId] = useState<number | null>(null);
+  const [upazilaId, setUpazilaId] = useState<number | null>(null);
+
+  const [address, setAddress] = useState("");
+  const [note, setNote] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<"cod" | "online">("cod");
+  const [termsChecked, setTermsChecked] = useState(false);
+
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
+  // Coupon state
+  const [couponInput, setCouponInput] = useState("");
+  const [couponApplied, setCouponApplied] = useState<{
+    code: string;
+    discountAmount: number;
+    label: string;
+  } | null>(null);
+  const [couponError, setCouponError] = useState("");
+  const [couponLoading, setCouponLoading] = useState(false);
+
+  // Hydrate items from cart or buyNow
+  useEffect(() => {
+    if (isBuyNow) {
+      const item = readBuyNow();
+      setItems(item ? [item] : []);
+    } else {
+      setItems(cartItems);
+    }
+    setHydrated(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isBuyNow]);
+
+  // Sync cart items (non-buynow mode)
+  useEffect(() => {
+    if (!isBuyNow && hydrated) setItems(cartItems);
+  }, [cartItems, isBuyNow, hydrated]);
+
+  // Cascading reset
+  function handleDivisionChange(id: number | null) {
+    setDivisionId(id);
+    setDistrictId(null);
+    setUpazilaId(null);
+  }
+
+  function handleDistrictChange(id: number | null) {
+    setDistrictId(id);
+    setUpazilaId(null);
+  }
+
+  // Derived option lists
+  const divisionOptions: LocationOption[] = divisions.map((d) => ({
+    id: d.id,
+    name_bn: d.name_bn,
+    name_en: d.name_en,
+  }));
+
+  const districtOptions: LocationOption[] = divisionId
+    ? getDistrictsByDivision(divisionId).map((d) => ({
+        id: d.id,
+        name_bn: d.name_bn,
+        name_en: d.name_en,
+      }))
+    : [];
+
+  const upazilaOptions: LocationOption[] = districtId
+    ? getUpazilasByDistrict(districtId).map((u) => ({
+        id: u.id,
+        name_bn: u.name_bn,
+        name_en: u.name_en,
+      }))
+    : [];
+
+  const subtotal = items.reduce((s, i) => s + i.unitPrice * i.quantity, 0);
+  // Same helper placeOrder uses, so this never disagrees with the saved order
+  const deliveryCharge = deliveryChargeFor(districtId, subtotal, delivery);
+  const discount = couponApplied?.discountAmount ?? 0;
+  const total = Math.max(0, subtotal + deliveryCharge - discount);
+  const freeDeliveryGap = amountToFreeDelivery(subtotal, delivery);
+
+  async function applyCoupon() {
+    if (!couponInput.trim()) return;
+    setCouponError("");
+    setCouponLoading(true);
+    try {
+      const res = await validateCoupon(couponInput.trim(), subtotal);
+      if (!res.ok) {
+        setCouponError(res.error);
+        setCouponApplied(null);
+      } else {
+        setCouponApplied({
+          code: res.code,
+          discountAmount: res.discountAmount,
+          label:
+            res.type === "percentage"
+              ? `${res.value}% ছাড়`
+              : `৳${res.value} ছাড়`,
+        });
+        setCouponError("");
+        setCouponInput("");
+      }
+    } finally {
+      setCouponLoading(false);
+    }
+  }
+
+  function removeCoupon() {
+    setCouponApplied(null);
+    setCouponError("");
+    setCouponInput("");
+  }
+
+  const updateQty = (item: CartItem, qty: number) => {
+    setItems((prev) =>
+      prev.map((i) =>
+        i.productId === item.productId &&
+        i.size === item.size &&
+        i.color === item.color
+          ? { ...i, quantity: Math.max(1, Math.min(20, qty)) }
+          : i,
+      ),
+    );
+  };
+
+  const removeItem = (item: CartItem) => {
+    setItems((prev) =>
+      prev.filter(
+        (i) =>
+          !(
+            i.productId === item.productId &&
+            i.size === item.size &&
+            i.color === item.color
+          ),
+      ),
+    );
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+
+    if (!termsChecked) {
+      setError("শর্তাবলী ও রিটার্ন পলিসিতে সম্মত হন।");
+      return;
+    }
+    if (!divisionId) {
+      setError("বিভাগ নির্বাচন করুন।");
+      return;
+    }
+    if (!districtId) {
+      setError("জেলা নির্বাচন করুন।");
+      return;
+    }
+    if (!items.length) {
+      setError("কার্টে কোনো পণ্য নেই।");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const result = await placeOrder({
+        customer: {
+          name,
+          phone,
+          email,
+          divisionId,
+          districtId,
+          upazilaId: upazilaId ?? undefined,
+          address,
+        },
+        note,
+        paymentMethod,
+        items: items.map((i) => ({
+          productId: i.productId,
+          size: i.size,
+          color: i.color,
+          colorHex: i.colorHex,
+          quantity: i.quantity,
+        })),
+        mode: isBuyNow ? "buynow" : "cart",
+        couponCode: couponApplied?.code,
+      });
+
+      if (!result.success) {
+        setError(result.error);
+        return;
+      }
+
+      if (isBuyNow) clearBuyNow();
+      else clearCart();
+
+      if (result.data.orderId && result.data.guestToken) {
+        router.push(
+          `/payment?orderId=${result.data.orderId}&token=${result.data.guestToken}`,
+        );
+      } else {
+        router.push(`/order-success?order=${result.data.orderNumber}`);
+      }
+    } catch {
+      setError("কিছু একটা সমস্যা হয়েছে। আবার চেষ্টা করুন।");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (hydrated && !items.length) {
+    return (
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 pt-16 pb-36 text-center">
+        <p className="font-display font-bold text-2xl mb-2">কার্ট খালি</p>
+        <p className="text-[var(--mute)] mb-6">
+          চেকআউট করতে আগে পণ্য যোগ করুন।
+        </p>
+        <Link
+          href="/shop"
+          className="inline-flex h-12 items-center px-8 rounded-full bg-[var(--ink)] text-[var(--bg)] font-semibold"
+        >
+          শপে যান
+        </Link>
+      </main>
+    );
+  }
+
+  return (
+    <main className="max-w-6xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10 pb-36 lg:pb-20">
+      {/* Header */}
+      <div className="flex flex-wrap items-end justify-between gap-4 mb-6 sm:mb-8">
+        <div>
+          <Link
+            href="/shop"
+            className="inline-flex items-center gap-1.5 text-sm text-[var(--mute)] hover:text-[var(--ink)] mb-3"
+          >
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              viewBox="0 0 24 24"
+            >
+              <path d="M15 6 9 12l6 6" />
+            </svg>
+            শপিং চালিয়ে যান
+          </Link>
+          <p className="text-xs font-semibold tracking-[.22em] uppercase text-[var(--ink)] mb-1 md:hidden">
+            ধাপ ২ / ৩
+          </p>
+          <h1 className="font-display font-extrabold text-[2rem] sm:text-4xl lg:text-5xl tracking-tight leading-none">
+            চেকআউট
+          </h1>
+          <p className="text-[var(--mute)] mt-2 text-[15px]">
+            ডেলিভারি তথ্য দিয়ে অর্ডারটি কনফার্ম করুন।
+          </p>
+        </div>
+      </div>
+
+      <form
+        onSubmit={handleSubmit}
+        className="grid lg:grid-cols-[minmax(0,1fr)_380px] gap-6 lg:gap-8 items-start"
+      >
+        {/* Left column */}
+        <div className="space-y-5">
+          {/* Section 1: Delivery Address */}
+          <section className="card p-5 sm:p-7">
+            <div className="flex items-start gap-3 mb-6">
+              <span className="step-no">1</span>
+              <div>
+                <h2 className="font-display font-bold text-xl leading-tight">
+                  ডেলিভারি ঠিকানা
+                </h2>
+                <p className="text-sm text-[var(--mute)] mt-0.5">
+                  যে ঠিকানায় পণ্য পৌঁছাবে
+                </p>
+              </div>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-4">
+              {/* Name */}
+              <label className="field block">
+                <span className="lbl">পুরো নাম *</span>
+                <input
+                  className="inp"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  autoComplete="name"
+                  placeholder="আপনার নাম"
+                />
+              </label>
+              {/* Phone */}
+              <label className="field block">
+                <span className="lbl">মোবাইল নম্বর *</span>
+                <input
+                  className="inp"
+                  inputMode="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  required
+                  placeholder="01XXXXXXXXX"
+                  autoComplete="tel"
+                />
+              </label>
+              {/* Email */}
+              <label className="field block sm:col-span-2">
+                <span className="lbl">
+                  ইমেইল{" "}
+                  <span className="font-medium text-[var(--mute)]">
+                    (ঐচ্ছিক)
+                  </span>
+                </span>
+                <input
+                  type="email"
+                  className="inp"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="email"
+                  placeholder="email@example.com"
+                />
+              </label>
+
+              {/* Division */}
+              <div className="sm:col-span-2 grid sm:grid-cols-3 gap-4">
+                <LocationDropdown
+                  label="বিভাগ"
+                  placeholder="বিভাগ নির্বাচন করুন"
+                  options={divisionOptions}
+                  value={divisionId}
+                  onChange={handleDivisionChange}
+                  required
+                />
+                <LocationDropdown
+                  label="জেলা"
+                  placeholder={divisionId ? "জেলা নির্বাচন করুন" : "আগে বিভাগ নির্বাচন করুন"}
+                  options={districtOptions}
+                  value={districtId}
+                  onChange={handleDistrictChange}
+                  disabled={!divisionId}
+                  required
+                />
+                <LocationDropdown
+                  label="উপজেলা / থানা"
+                  placeholder={districtId ? "উপজেলা নির্বাচন করুন" : "আগে জেলা নির্বাচন করুন"}
+                  options={upazilaOptions}
+                  value={upazilaId}
+                  onChange={setUpazilaId}
+                  disabled={!districtId}
+                />
+              </div>
+
+              {/* Address */}
+              <label className="field block sm:col-span-2">
+                <span className="lbl">সম্পূর্ণ ঠিকানা *</span>
+                <textarea
+                  rows={3}
+                  className="inp"
+                  style={{ height: "auto", paddingTop: 12, paddingBottom: 12 }}
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  required
+                  placeholder="বাড়ি নং, রোড, এলাকা"
+                />
+              </label>
+              {/* Note */}
+              <label className="field block sm:col-span-2">
+                <span className="lbl">
+                  অর্ডার নোট{" "}
+                  <span className="font-medium text-[var(--mute)]">
+                    (ঐচ্ছিক)
+                  </span>
+                </span>
+                <input
+                  className="inp"
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  placeholder="ডেলিভারির আগে কল করুন…"
+                />
+              </label>
+            </div>
+          </section>
+
+          {/* Section 2: Delivery Method */}
+          <section className="card p-5 sm:p-7">
+            <div className="flex items-start gap-3 mb-6">
+              <span className="step-no">2</span>
+              <div>
+                <h2 className="font-display font-bold text-xl leading-tight">
+                  ডেলিভারি চার্জ
+                </h2>
+                <p className="text-sm text-[var(--mute)] mt-0.5">
+                  জেলা অনুযায়ী স্বয়ংক্রিয়ভাবে নির্ধারিত
+                </p>
+              </div>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-3">
+              {[
+                { label: "ঢাকা", desc: "১–২ কার্যদিবস", charge: 60 },
+                { label: "ঢাকার বাইরে", desc: "২–৪ কার্যদিবস", charge: 120 },
+              ].map((opt) => {
+                const active = opt.charge === deliveryCharge && districtId !== null;
+                return (
+                  <div
+                    key={opt.charge}
+                    className={`flex items-center gap-3 rounded-2xl p-4 border transition-colors ${
+                      active
+                        ? "border-[var(--ink)] bg-[var(--soft)]"
+                        : "border-[var(--line)]"
+                    }`}
+                  >
+                    <span
+                      className={`w-4 h-4 rounded-full border-2 flex-shrink-0 ${
+                        active
+                          ? "border-[var(--ink)] bg-[var(--ink)]"
+                          : "border-[var(--line)]"
+                      }`}
+                    />
+                    <span className="flex-1 min-w-0">
+                      <b className="block">{opt.label}</b>
+                      <span className="text-sm text-[var(--mute)]">
+                        {opt.desc}
+                      </span>
+                    </span>
+                    <b className="font-display">{fmt(opt.charge)}</b>
+                  </div>
+                );
+              })}
+            </div>
+            {!districtId && (
+              <p className="text-sm text-[var(--mute)] mt-3">
+                জেলা নির্বাচন করলে ডেলিভারি চার্জ দেখাবে।
+              </p>
+            )}
+          </section>
+
+          {/* Section 3: Payment Method */}
+          <section className="card p-5 sm:p-7">
+            <div className="flex items-start gap-3 mb-6">
+              <span className="step-no">3</span>
+              <div>
+                <h2 className="font-display font-bold text-xl leading-tight">
+                  পেমেন্ট পদ্ধতি
+                </h2>
+                <p className="text-sm text-[var(--mute)] mt-0.5">
+                  COD তে শুধু ডেলিভারি চার্জ অনলাইনে দিন
+                </p>
+              </div>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-3">
+              {[
+                {
+                  value: "cod" as const,
+                  label: "ক্যাশ অন ডেলিভারি",
+                  desc: "পণ্য পেলে টাকা দিন",
+                  note: "শুধু ডেলিভারি চার্জ অগ্রিম",
+                },
+                {
+                  value: "online" as const,
+                  label: "মোবাইল ব্যাংকিং",
+                  desc: "bKash / Nagad / Rocket",
+                  note: "সম্পূর্ণ টাকা এখনই পরিশোধ করুন",
+                },
+              ].map((opt) => (
+                <label
+                  key={opt.value}
+                  className={`flex items-start gap-3 rounded-2xl p-4 border cursor-pointer transition-colors ${
+                    paymentMethod === opt.value
+                      ? "border-[var(--ink)] bg-[var(--soft)]"
+                      : "border-[var(--line)]"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="payment"
+                    value={opt.value}
+                    checked={paymentMethod === opt.value}
+                    onChange={() => setPaymentMethod(opt.value)}
+                    className="mt-1"
+                  />
+                  <span>
+                    <b className="block">{opt.label}</b>
+                    <span className="text-sm text-[var(--mute)]">
+                      {opt.desc}
+                    </span>
+                    {opt.note && (
+                      <span className="block text-xs text-[var(--mute)] mt-0.5">
+                        {opt.note}
+                      </span>
+                    )}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </section>
+
+          {/* Trust badges */}
+          <section className="card p-5 sm:p-6">
+            <div className="grid sm:grid-cols-3 gap-4 text-sm">
+              {[
+                {
+                  icon: <path d="M3 7h11v8H3zM14 10h4l3 3v2h-7z" />,
+                  extra: (
+                    <>
+                      <circle cx={7} cy={18} r="1.6" />
+                      <circle cx={18} cy={18} r="1.6" />
+                    </>
+                  ),
+                  title: "দ্রুত ডেলিভারি",
+                  sub: "ঢাকায় ১–২ দিন",
+                },
+                {
+                  icon: <path d="M4 7h16M7 7V5h10v2M6 7l1 13h10l1-13" />,
+                  title: "ফ্রি এক্সচেঞ্জ",
+                  sub: "৭ দিনের মধ্যে",
+                },
+                {
+                  icon: (
+                    <path d="M12 3 5 6v6c0 4.2 2.8 7.4 7 9 4.2-1.6 7-4.8 7-9V6z" />
+                  ),
+                  title: "নিরাপদ পেমেন্ট",
+                  sub: "এনক্রিপ্টেড",
+                },
+              ].map(({ icon, extra, title, sub }) => (
+                <div key={title} className="flex items-center gap-3">
+                  <span className="w-10 h-10 rounded-2xl bg-[var(--soft)] grid place-items-center shrink-0">
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      viewBox="0 0 24 24"
+                    >
+                      {icon}
+                      {extra}
+                    </svg>
+                  </span>
+                  <span>
+                    <b className="block">{title}</b>
+                    <span className="text-[var(--mute)]">{sub}</span>
+                  </span>
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+
+        {/* Right column: Order Summary */}
+        <aside className="lg:sticky lg:top-24 card p-5 sm:p-6">
+          <div className="flex items-center justify-between gap-3 mb-5">
+            <h2 className="font-display font-bold text-xl">অর্ডার সামারি</h2>
+            <span className="text-xs font-semibold tracking-wide uppercase text-[var(--mute)]">
+              {items.length > 0
+                ? `${items.reduce((s, i) => s + i.quantity, 0)} টি পণ্য`
+                : ""}
+            </span>
+          </div>
+
+          {/* Free shipping progress — only when free delivery is actually switched on */}
+          {freeDeliveryGap !== null && (
+            <div className="mb-5 rounded-2xl bg-[var(--soft)] p-3.5">
+              <p className="text-sm text-[var(--mute)] mb-2">
+                আর {fmt(freeDeliveryGap)} কিনলে ডেলিভারি ফ্রি
+              </p>
+              <div className="h-2 rounded-full bg-[var(--line)] overflow-hidden">
+                <div
+                  className="h-full bg-[var(--ink)] rounded-full transition-all"
+                  style={{
+                    width: `${Math.min(100, (subtotal / delivery.freeDeliveryThreshold) * 100)}%`,
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
+          {delivery.freeDeliveryEnabled && freeDeliveryGap === null && subtotal > 0 && (
+            <div className="mb-5 rounded-2xl bg-[var(--soft)] p-3.5">
+              <p className="text-sm font-semibold">ডেলিভারি ফ্রি! 🎉</p>
+            </div>
+          )}
+
+          {/* Coupon input */}
+          <div className="mb-5">
+            {couponApplied ? (
+              <div className="flex items-center justify-between gap-2 rounded-2xl bg-[var(--soft)] border border-[var(--ink)] px-4 py-3">
+                <div className="flex items-center gap-2">
+                  <svg
+                    className="w-4 h-4 text-[var(--ink)] shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2.2}
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="m5 12 5 5L20 7" />
+                  </svg>
+                  <div>
+                    <p className="text-sm font-bold font-mono">{couponApplied.code}</p>
+                    <p className="text-xs text-[var(--mute)]">
+                      {couponApplied.label} প্রযোজ্য
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={removeCoupon}
+                  className="text-xs text-[var(--mute)] hover:text-red-500 transition-colors"
+                >
+                  সরান ✕
+                </button>
+              </div>
+            ) : (
+              <div>
+                <div className="flex gap-2">
+                  <input
+                    className="inp flex-1 !rounded-2xl uppercase placeholder:normal-case placeholder:text-[var(--mute)]"
+                    value={couponInput}
+                    onChange={(e) => {
+                      setCouponInput(e.target.value.toUpperCase());
+                      setCouponError("");
+                    }}
+                    onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), applyCoupon())}
+                    placeholder="কুপন কোড"
+                    disabled={couponLoading}
+                  />
+                  <button
+                    type="button"
+                    onClick={applyCoupon}
+                    disabled={couponLoading || !couponInput.trim()}
+                    className="shrink-0 h-12 px-4 rounded-2xl bg-[var(--ink)] text-[var(--bg)] text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90"
+                  >
+                    {couponLoading ? "…" : "প্রয়োগ"}
+                  </button>
+                </div>
+                {couponError && (
+                  <p className="text-xs text-red-600 mt-1.5 font-medium">
+                    ⚠ {couponError}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Items list */}
+          <div className="space-y-4 max-h-72 overflow-y-auto pr-1 mb-4">
+            {!hydrated
+              ? Array.from({ length: 2 }).map((_, i) => (
+                  <div key={i} className="flex gap-3 animate-pulse">
+                    <div className="w-16 h-16 rounded-xl bg-[var(--soft)] shrink-0" />
+                    <div className="flex-1 space-y-2">
+                      <div className="h-3 bg-[var(--soft)] rounded w-3/4" />
+                      <div className="h-3 bg-[var(--soft)] rounded w-1/2" />
+                    </div>
+                  </div>
+                ))
+              : items.map((item) => (
+                  <div
+                    key={`${item.productId}-${item.size}-${item.color}`}
+                    className="flex gap-3"
+                  >
+                    <div className="w-16 h-16 rounded-xl overflow-hidden bg-[var(--soft)] shrink-0 relative">
+                      {item.image && (
+                        <Image
+                          src={item.image}
+                          alt={item.name}
+                          fill
+                          className="object-cover"
+                          sizes="64px"
+                        />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-sm leading-tight truncate">
+                        {item.name}
+                      </p>
+                      {(item.size || item.color) && (
+                        <p className="text-xs text-[var(--mute)] mt-0.5">
+                          {[item.size, item.color].filter(Boolean).join(" · ")}
+                        </p>
+                      )}
+                      <div className="flex items-center justify-between mt-1.5">
+                        <div className="flex items-center gap-1 border border-[var(--line)] rounded-lg overflow-hidden">
+                          <button
+                            type="button"
+                            onClick={() => updateQty(item, item.quantity - 1)}
+                            className="w-7 h-7 flex items-center justify-center hover:bg-[var(--soft)]"
+                          >
+                            −
+                          </button>
+                          <span className="w-7 text-center text-sm font-semibold">
+                            {item.quantity}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => updateQty(item, item.quantity + 1)}
+                            className="w-7 h-7 flex items-center justify-center hover:bg-[var(--soft)]"
+                          >
+                            +
+                          </button>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-semibold">
+                            {fmt(item.unitPrice * item.quantity)}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => removeItem(item)}
+                            className="text-[var(--mute)] hover:text-red-500 text-xs"
+                            aria-label="Remove"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+          </div>
+
+          {/* Totals */}
+          <dl className="pt-4 border-t border-[var(--line)] space-y-2.5 text-[15px]">
+            <div className="flex justify-between gap-4">
+              <dt className="text-[var(--mute)]">সাবটোটাল</dt>
+              <dd className="font-medium">{fmt(subtotal)}</dd>
+            </div>
+            <div className="flex justify-between gap-4">
+              <dt className="text-[var(--mute)]">ডেলিভারি</dt>
+              <dd className="font-medium">
+                {districtId ? fmt(deliveryCharge) : "—"}
+              </dd>
+            </div>
+            {discount > 0 && (
+              <div className="flex justify-between gap-4 text-green-600">
+                <dt className="font-medium">
+                  কুপন ছাড়{" "}
+                  <span className="font-mono text-xs font-bold">
+                    ({couponApplied?.code})
+                  </span>
+                </dt>
+                <dd className="font-semibold">−{fmt(discount)}</dd>
+              </div>
+            )}
+            <div className="flex items-end justify-between gap-4 pt-3 border-t border-[var(--line)]">
+              <dt className="font-bold">সর্বমোট</dt>
+              <dd className="font-display font-extrabold text-[1.7rem] leading-none">
+                {districtId ? fmt(total) : fmt(subtotal - discount)}
+              </dd>
+            </div>
+            {paymentMethod === "cod" && districtId && (
+              <div className="text-xs text-[var(--mute)] bg-[var(--soft)] rounded-xl p-3 mt-1">
+                এখন অনলাইনে পরিশোধ:{" "}
+                <b className="text-[var(--ink)]">{fmt(deliveryCharge)}</b>
+                <br />
+                ডেলিভারিতে দিন:{" "}
+                <b className="text-[var(--ink)]">{fmt(Math.max(0, subtotal - discount))}</b>
+              </div>
+            )}
+          </dl>
+
+          {/* Error */}
+          {error && (
+            <p className="mt-4 text-sm text-red-600 font-medium" role="alert">
+              ⚠ {error}
+            </p>
+          )}
+
+          {/* Terms + Submit */}
+          <div className="mt-5">
+            <label className="flex items-start gap-2.5 mb-4 text-sm text-[var(--mute)] cursor-pointer">
+              <input
+                type="checkbox"
+                checked={termsChecked}
+                onChange={(e) => setTermsChecked(e.target.checked)}
+                className="mt-0.5 w-4 h-4 accent-[var(--ink)]"
+              />
+              <span>
+                আমি{" "}
+                <a href="#" className="underline text-[var(--ink)]">
+                  শর্তাবলী
+                </a>{" "}
+                ও{" "}
+                <a href="#" className="underline text-[var(--ink)]">
+                  রিটার্ন পলিসি
+                </a>{" "}
+                পড়েছি ও সম্মত।
+              </span>
+            </label>
+            <button
+              type="submit"
+              disabled={submitting || !items.length}
+              className="w-full h-[52px] rounded-2xl bg-[var(--ink)] text-[var(--bg)] font-semibold text-base hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {submitting ? "প্রক্রিয়া করা হচ্ছে…" : "অর্ডার কনফার্ম করুন"}
+            </button>
+            <p className="text-xs text-[var(--mute)] text-center mt-3">
+              ৭ দিনের মধ্যে ফ্রি সাইজ এক্সচেঞ্জ
+            </p>
+          </div>
+        </aside>
+      </form>
+    </main>
+  );
+}

@@ -1,0 +1,205 @@
+"use client";
+
+import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import type { AccountOrder } from "./account.types";
+import { ORDER_STATUS_LABEL, ORDER_STATUS_COLOR } from "./account.types";
+
+function fmt(n: number) {
+  return "৳" + Math.round(n).toLocaleString("en-US");
+}
+
+function fmtDate(iso: string) {
+  return new Date(iso).toLocaleDateString("bn-BD", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+function ProductThumb({ image, name }: { image?: string; name: string }) {
+  if (image) {
+    return (
+      <span className="w-12 h-14 rounded-xl overflow-hidden bg-soft shrink-0 inline-flex">
+        <Image src={image} alt={name} width={48} height={56} className="object-cover w-full h-full" />
+      </span>
+    );
+  }
+  return (
+    <span className="w-12 h-14 rounded-xl bg-soft grid place-items-center shrink-0">
+      <svg className="w-6 h-6 text-mute" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+      </svg>
+    </span>
+  );
+}
+
+function PaymentLabel(method: string, gateway?: string): string {
+  if (gateway && gateway !== "COD") return gateway;
+  if (method === "cod") return "ক্যাশ অন ডেলিভারি";
+  return method;
+}
+
+export default function AccountOrders({ orders }: { orders: AccountOrder[] }) {
+  const [expanded, setExpanded] = useState<string | null>(null);
+
+  function toggle(num: string) {
+    setExpanded((prev) => (prev === num ? null : num));
+  }
+
+  return (
+    <section id="orders" className="card p-5 sm:p-7">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
+        <h2 className="font-display font-bold text-xl">আমার অর্ডার</h2>
+        {orders.length > 0 && (
+          <span className="text-sm text-mute">সর্বশেষ {orders.length}টি অর্ডার</span>
+        )}
+      </div>
+
+      {orders.length === 0 ? (
+        <div className="py-10 text-center text-mute text-sm">
+          <svg className="w-10 h-10 mx-auto mb-3 opacity-30" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+            <path d="m12 3 8 4.5v9L12 21l-8-4.5v-9z" />
+            <path d="m4 7.5 8 4.5 8-4.5M12 12v9" />
+          </svg>
+          এখনো কোনো অর্ডার করা হয়নি।
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {orders.map((order) => {
+            const label = ORDER_STATUS_LABEL[order.status] ?? order.status;
+            const color = ORDER_STATUS_COLOR[order.status] ?? "border-line text-mute";
+            const isOpen = expanded === order.orderNumber;
+            const totalQty = order.items.reduce((s, i) => s + i.quantity, 0);
+            const isActive = ["pending", "confirmed", "processing", "shipped"].includes(order.status);
+
+            return (
+              <article key={order.orderNumber} className="rounded-2xl border border-line">
+                {/* Header row */}
+                <div className="p-4 sm:p-5">
+                  <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
+                    <div>
+                      <b className="font-display text-lg tracking-wide">{order.orderNumber}</b>
+                      <p className="text-xs text-mute">
+                        {fmtDate(order.createdAt)} · {totalQty} পিস
+                      </p>
+                    </div>
+                    <span className={`inline-flex items-center h-6 px-2.5 rounded-full text-xs font-bold border ${color}`}>
+                      {label}
+                    </span>
+                  </div>
+
+                  {/* Thumbnails + total */}
+                  <div className="flex items-center gap-2 mb-4">
+                    {order.items.slice(0, 3).map((it, idx) => (
+                      <ProductThumb key={idx} image={it.image} name={it.name} />
+                    ))}
+                    {order.items.length > 3 && (
+                      <span className="w-12 h-14 rounded-xl bg-soft grid place-items-center text-xs font-semibold text-mute">
+                        +{order.items.length - 3}
+                      </span>
+                    )}
+                    <span className="ml-auto text-right">
+                      <span className="block text-xs text-mute">সর্বমোট</span>
+                      <b className="font-display text-xl">{fmt(order.totalAmount)}</b>
+                    </span>
+                  </div>
+
+                  {/* Toggle button */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => toggle(order.orderNumber)}
+                      className="h-10 px-4 rounded-xl bg-ink text-bg text-sm font-semibold inline-flex items-center gap-1.5 hover:opacity-90 transition-opacity"
+                    >
+                      {isOpen ? "বন্ধ করুন" : "বিস্তারিত দেখুন"}
+                      <svg
+                        className={`w-3.5 h-3.5 transition-transform ${isOpen ? "rotate-180" : ""}`}
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={2.4}
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="m6 9 6 6 6-6" />
+                      </svg>
+                    </button>
+                    {isActive && (
+                      <Link
+                        href="/track-order"
+                        className="h-10 px-4 rounded-xl border border-line text-sm font-semibold inline-flex items-center hover:bg-soft transition-colors"
+                      >
+                        ট্র্যাক করুন
+                      </Link>
+                    )}
+                  </div>
+                </div>
+
+                {/* Expanded detail */}
+                {isOpen && (
+                  <div className="border-t border-line px-4 sm:px-5 py-4 space-y-4">
+                    {/* Items */}
+                    <div className="space-y-2 text-sm">
+                      {order.items.map((it, idx) => (
+                        <div key={idx} className="flex justify-between gap-3">
+                          <span>
+                            {it.name}
+                            {(it.color || it.size) && (
+                              <span className="text-mute">
+                                {it.color ? ` · ${it.color}` : ""}
+                                {it.size ? ` · ${it.size}` : ""}
+                                {` × ${it.quantity}`}
+                              </span>
+                            )}
+                          </span>
+                          <b className="shrink-0">{fmt(it.totalPrice)}</b>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Totals */}
+                    <dl className="text-sm space-y-1 pt-3 border-t border-line">
+                      {order.deliveryCharge > 0 && (
+                        <div className="flex justify-between gap-3 text-mute">
+                          <dt>ডেলিভারি চার্জ</dt>
+                          <dd>{fmt(order.deliveryCharge)}</dd>
+                        </div>
+                      )}
+                      {order.discount > 0 && (
+                        <div className="flex justify-between gap-3 text-mute">
+                          <dt>ছাড়</dt>
+                          <dd>-{fmt(order.discount)}</dd>
+                        </div>
+                      )}
+                      <div className="flex justify-between gap-3 font-semibold pt-1">
+                        <dt>সর্বমোট</dt>
+                        <dd>{fmt(order.totalAmount)}</dd>
+                      </div>
+                    </dl>
+
+                    {/* Payment + address */}
+                    <div className="text-sm text-mute space-y-1 pt-3 border-t border-line">
+                      <p>
+                        পেমেন্ট: {PaymentLabel(order.payment.method, order.payment.gateway)}
+                        {order.payment.transactionId && (
+                          <span className="ml-1 font-mono text-xs">{order.payment.transactionId}</span>
+                        )}
+                      </p>
+                      {order.customer.address && (
+                        <p>
+                          {[order.customer.address, order.customer.district, order.customer.division]
+                            .filter(Boolean)
+                            .join(", ")}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </article>
+            );
+          })}
+        </div>
+      )}
+    </section>
+  );
+}

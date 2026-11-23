@@ -1,0 +1,47 @@
+import type { ProductDetails, ReviewSummaryData } from "./product.types";
+
+interface ProductJsonLdProps {
+  product: ProductDetails;
+  reviewSummary: ReviewSummaryData;
+  url: string;
+}
+
+/** schema.org Product structured data for search engines */
+export default function ProductJsonLd({ product, reviewSummary, url }: ProductJsonLdProps) {
+  const inStock = product.sizes.length > 0 ? product.sizes.some((s) => s.stock > 0) : product.stock > 0;
+
+  const data = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.description,
+    image: product.images,
+    sku: product._id,
+    ...(product.category ? { category: product.category.name } : {}),
+    offers: {
+      "@type": "Offer",
+      url,
+      priceCurrency: "BDT",
+      price: product.salePrice,
+      availability: inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      itemCondition: "https://schema.org/NewCondition",
+    },
+    ...(reviewSummary.total > 0
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: reviewSummary.average.toFixed(1),
+            reviewCount: reviewSummary.total,
+          },
+        }
+      : {}),
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      // Escape "<" so product text can never close the script tag
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(data).replace(/</g, "\\u003c") }}
+    />
+  );
+}
