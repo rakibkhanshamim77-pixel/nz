@@ -73,7 +73,7 @@ async function send(phone: string, message: string): Promise<void> {
     );
   }
 
-  console.log("SMS submitted successfully:", result.success_message);
+  // SMS sent successfully — no logging to avoid leaking API internals
 }
 
 export async function sendOtp(phone: string, code: string): Promise<void> {

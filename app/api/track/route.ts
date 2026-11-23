@@ -122,7 +122,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({ orders });
   } catch (err) {
-    console.error("[GET /api/track]", err);
+    console.error("[GET /api/track]", err instanceof Error ? err.message : "unknown error");
     return NextResponse.json({ error: "server" }, { status: 500 });
   }
 }
