@@ -1,6 +1,6 @@
-/** 1450 -> "৳1,450" (same format as the design) */
+/** 1450 -> "BDT 1,450" (same format as the design) */
 export function formatPrice(amount: number): string {
-  return `৳${Math.round(amount).toLocaleString("en-US")}`;
+  return `BDT ${Math.round(amount).toLocaleString("en-US")}`;
 }
 
 /** 3 -> "★★★☆☆"-style split, for rendering filled / empty stars separately */

@@ -46,7 +46,7 @@ export default function CategoryCardPreview({ name, label, startingPrice, bgColo
         <span aria-hidden="true" className="block h-0.5 w-8 rounded-full mb-3" style={{ backgroundColor: accent }} />
         <b className="block font-display text-xl leading-tight break-words">{name || "Category name"}</b>
         {startingPrice > 0 && (
-          <span className="block mt-1 text-sm opacity-75">৳{startingPrice.toLocaleString("bn-BD")} থেকে</span>
+          <span className="block mt-1 text-sm opacity-75">BDT {startingPrice.toLocaleString("en-US")} থেকে</span>
         )}
         <span className="mt-4 inline-flex items-center gap-2 text-xs font-semibold">
           কালেকশন দেখুন

@@ -50,5 +50,5 @@ export const ALL_STATUSES = [
 export const DEFAULT_LIMIT = 15;
 
 export function fmt(n: number) {
-  return "৳" + n.toLocaleString("en-US");
+  return "BDT " + n.toLocaleString("en-US");
 }

@@ -119,7 +119,7 @@ export default function UpdateStatusModal({
               <b className="text-[var(--ink)] font-display tracking-wide">
                 NZ-{orderNumber}
               </b>{" "}
-              · {customerName} · ৳{totalAmount.toLocaleString()}
+              · {customerName} · BDT {totalAmount.toLocaleString("en-US")}
             </p>
           </div>
           <button

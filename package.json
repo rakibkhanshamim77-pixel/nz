@@ -6,7 +6,8 @@
     "dev": "tsx server.ts",
     "build": "next build",
     "start": "NODE_ENV=production tsx server.ts",
-    "lint": "next lint"
+    "lint": "next lint",
+    "migrate:images": "tsx scripts/migrate-imgbb-images.ts"
   },
   "dependencies": {
     "@types/web-push": "^3.6.4",

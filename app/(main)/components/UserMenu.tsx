@@ -56,16 +56,12 @@ export default function UserMenu({ user }: UserMenuProps) {
     );
   }
 
-  const displayName = user.name || "আমার অ্যাকাউন্ট";
+  const name = (user.name ?? "").trim();
+  const hasName = name.length > 0;
+  const displayName = hasName ? name : user.phone || "আমার অ্যাকাউন্ট";
   const isAdmin = ADMIN_ROLES.has(user.role);
 
-  const initials = displayName
-    .trim()
-    .split(/\s+/)
-    .map((w: string) => w[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
+  const initials = hasName ? (Array.from(name)[0] ?? "").toUpperCase() : "";
 
   return (
     <div ref={wrapRef} className="relative hidden sm:block">
@@ -76,12 +72,13 @@ export default function UserMenu({ user }: UserMenuProps) {
         aria-haspopup="true"
       >
         <span className="w-8 h-8 rounded-full grid place-items-center shrink-0 font-bold text-xs"
-          style={{ background: "var(--ink)", color: "var(--bg)" }}>
-          {initials}
+          style={{ background: "var(--ink)", color: "var(--bg)" }}
+          aria-hidden="true">
+          {initials || <User className="w-4 h-4" />}
         </span>
         <span className="leading-tight">
           <b className="block text-sm">{displayName}</b>
-          <span className="text-xs text-mute">{user.phone}</span>
+          {hasName && user.phone && <span className="text-xs text-mute">{user.phone}</span>}
         </span>
         <svg className={`w-3.5 h-3.5 text-mute ml-1 transition-transform ${open ? "rotate-180" : ""}`}
           fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
@@ -94,7 +91,9 @@ export default function UserMenu({ user }: UserMenuProps) {
           {/* User info */}
           <div className="px-3 py-2.5 mb-1">
             <p className="text-sm font-semibold truncate">{displayName}</p>
-            <p className="text-xs truncate" style={{ color: "var(--mute)" }}>{user.phone}</p>
+            {hasName && user.phone && (
+              <p className="text-xs truncate" style={{ color: "var(--mute)" }}>{user.phone}</p>
+            )}
             {isAdmin && (
               <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide"
                 style={{ background: "var(--ink)", color: "var(--bg)" }}>

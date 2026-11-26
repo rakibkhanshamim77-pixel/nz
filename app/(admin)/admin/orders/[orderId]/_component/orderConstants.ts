@@ -47,7 +47,7 @@ export const PROGRESS_STEPS = [
 export const TERMINAL_STATUSES = ["cancelled", "returned", "refunded"];
 
 export function fmt(n: number) {
-  return "৳" + n.toLocaleString("en-US");
+  return "BDT " + n.toLocaleString("en-US");
 }
 
 export function fmtDate(d?: Date | string | null) {

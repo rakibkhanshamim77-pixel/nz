@@ -24,5 +24,5 @@ export function fmtDate(iso: string | null) {
 }
 
 export function fmtDiscount(type: "percentage" | "fixed", value: number) {
-  return type === "percentage" ? `${value}% ছাড়` : `৳${value} ছাড়`;
+  return type === "percentage" ? `${value}% ছাড়` : `BDT ${value} ছাড়`;
 }

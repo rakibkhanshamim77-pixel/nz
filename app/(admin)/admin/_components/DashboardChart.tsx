@@ -13,7 +13,7 @@ interface Props {
   range: number;
 }
 
-const bn = (n: number) => "৳" + Math.round(n).toLocaleString("en-US");
+const bn = (n: number) => "BDT " + Math.round(n).toLocaleString("en-US");
 const bnNum = (n: number) => Number(n).toLocaleString("en-US");
 
 function shortDate(iso: string) {
@@ -93,7 +93,7 @@ export default function DashboardChart({ data, range }: Props) {
       const lines = ticks
         .map((v) => {
           const y = pad.t + ih - (v / top) * ih;
-          return `<line class="grid-line" x1="${pad.l}" x2="${W - pad.r}" y1="${y}" y2="${y}"/><text class="axis-t" x="${pad.l - 10}" y="${y + 4}" text-anchor="end">৳${fmtK(v)}</text>`;
+          return `<line class="grid-line" x1="${pad.l}" x2="${W - pad.r}" y1="${y}" y2="${y}"/><text class="axis-t" x="${pad.l - 10}" y="${y + 4}" text-anchor="end">BDT ${fmtK(v)}</text>`;
         })
         .join("");
 
@@ -147,7 +147,7 @@ export default function DashboardChart({ data, range }: Props) {
     <section className="card p-5 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3 mb-5">
         <div>
-          <h2 className="font-display font-bold text-lg">Daily Sales (৳)</h2>
+          <h2 className="font-display font-bold text-lg">Daily Sales (BDT)</h2>
           <p className="text-sm text-[var(--mute)]">
             {bn(total)} total in the last {range} days
             {range === 90 ? " · weekly" : ""}

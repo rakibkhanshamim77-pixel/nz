@@ -25,7 +25,7 @@ export default function ProductPrice({ regularPrice, salePrice }: ProductPricePr
           </>
         )}
       </div>
-      <p className="text-sm text-mute mt-2">ডেলিভারি চার্জ চেকআউটে যোগ হবে · ৳১,৫০০+ অর্ডারে ফ্রি</p>
+      <p className="text-sm text-mute mt-2">ডেলিভারি চার্জ চেকআউটে যোগ হবে · BDT 1,500+ অর্ডারে ফ্রি</p>
     </>
   );
 }

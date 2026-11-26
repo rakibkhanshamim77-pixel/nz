@@ -1,11 +1,27 @@
+import { cookies } from "next/headers";
 import LoginForm from "./_component/LoginForm";
+import { GOOGLE_PENDING_COOKIE, isGoogleConfigured, readPending } from "@/app/utils/googleAuth";
 
-export default function page() {
+const GOOGLE_ERRORS: Record<string, string> = {
+  google_failed: "Google দিয়ে লগইন করা যায়নি। আবার চেষ্টা করুন।",
+  google_cancelled: "Google লগইন বাতিল করা হয়েছে।",
+  google_unavailable: "Google লগইন এখন চালু নেই। মোবাইল নম্বর দিয়ে লগইন করুন।",
+  account_disabled: "এই অ্যাকাউন্টটি নিষ্ক্রিয় করা হয়েছে।",
+};
+
+export default function page({ searchParams }: { searchParams: { error?: string } }) {
+  const pendingGoogle = readPending(cookies().get(GOOGLE_PENDING_COOKIE)?.value);
+  const googleError = GOOGLE_ERRORS[searchParams.error ?? ""] ?? "";
+
   return (
     <main className="flex-1 grid place-items-center px-4 py-8 sm:py-14">
       <div className="w-full max-w-[440px]">
         <div className="card p-6 sm:p-9">
-          <LoginForm />
+          <LoginForm
+            googleEnabled={isGoogleConfigured()}
+            pendingGoogle={pendingGoogle}
+            googleError={googleError}
+          />
         </div>
         <p className="text-center text-sm text-mute mt-6 flex items-center justify-center gap-1.5">
           <svg

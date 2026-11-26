@@ -78,7 +78,7 @@ export default function CategoriesTable({ rows, togglingId, onEdit, onDelete, on
                     </Link>
                   </td>
                   <td className="text-right text-sm">
-                    {c.startingPrice > 0 ? `৳${c.startingPrice.toLocaleString("en-US")}` : <span className="text-[var(--mute)]">—</span>}
+                    {c.startingPrice > 0 ? `BDT ${c.startingPrice.toLocaleString("en-US")}` : <span className="text-[var(--mute)]">—</span>}
                   </td>
                   <td className="text-center text-sm">{c.order}</td>
                   <td className="text-center">
@@ -109,7 +109,7 @@ export default function CategoriesTable({ rows, togglingId, onEdit, onDelete, on
                   <Link href={productsHref(c)} className="font-semibold underline underline-offset-2">
                     {c.productCount} product{c.productCount === 1 ? "" : "s"}
                   </Link>
-                  {c.startingPrice > 0 && <span className="text-[var(--mute)]"> · from ৳{c.startingPrice.toLocaleString("en-US")}</span>}
+                  {c.startingPrice > 0 && <span className="text-[var(--mute)]"> · from BDT {c.startingPrice.toLocaleString("en-US")}</span>}
                 </p>
               </div>
             </div>

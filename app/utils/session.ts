@@ -17,6 +17,15 @@ function getSecret(): string {
 }
 
 export function signSession(payload: SessionPayload): string {
+  return signPayload(payload);
+}
+
+export function verifySession(token: string): SessionPayload | null {
+  return verifyPayload<SessionPayload>(token);
+}
+
+/** Signs any JSON payload that carries an `exp` (ms timestamp) with AUTH_SECRET. */
+export function signPayload<T extends { exp: number }>(payload: T): string {
   const data = Buffer.from(JSON.stringify(payload)).toString("base64url");
   const sig = crypto
     .createHmac("sha256", getSecret())
@@ -25,7 +34,8 @@ export function signSession(payload: SessionPayload): string {
   return `${data}.${sig}`;
 }
 
-export function verifySession(token: string): SessionPayload | null {
+/** Returns the payload if the signature is valid and it hasn't expired, otherwise null. */
+export function verifyPayload<T extends { exp: number }>(token: string): T | null {
   const dot = token.lastIndexOf(".");
   if (dot === -1) return null;
   const data = token.slice(0, dot);
@@ -47,10 +57,8 @@ export function verifySession(token: string): SessionPayload | null {
   }
 
   try {
-    const payload = JSON.parse(
-      Buffer.from(data, "base64url").toString(),
-    ) as SessionPayload;
-    if (payload.exp < Date.now()) return null;
+    const payload = JSON.parse(Buffer.from(data, "base64url").toString()) as T;
+    if (typeof payload?.exp !== "number" || payload.exp < Date.now()) return null;
     return payload;
   } catch {
     return null;

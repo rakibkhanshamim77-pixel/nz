@@ -93,4 +93,4 @@ export function checkImageFile(file: File): string | null {
   return null;
 }
 
-export const taka = (n: number) => "৳" + Math.round(n).toLocaleString("en-US");
+export const taka = (n: number) => "BDT " + Math.round(n).toLocaleString("en-US");

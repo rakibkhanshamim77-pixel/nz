@@ -59,7 +59,7 @@ function pct(cur: number, prev: number) {
 }
 
 function fmt(n: number) {
-  return "৳" + Math.round(n).toLocaleString("en-US");
+  return "BDT " + Math.round(n).toLocaleString("en-US");
 }
 
 export default function DashboardKPIs({

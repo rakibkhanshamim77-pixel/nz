@@ -3,7 +3,7 @@ import Link from "next/link";
 const FREE_SHIP_THRESHOLD = 1500;
 
 function fmt(n: number) {
-  return "৳" + n.toLocaleString("bn-BD");
+  return "BDT " + n.toLocaleString("en-US");
 }
 
 interface Props {

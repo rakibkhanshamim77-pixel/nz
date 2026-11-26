@@ -36,7 +36,7 @@ export default async function Categories() {
             key={cat.id}
             href="#shop"
             data-filter={cat.filter}
-            aria-label={`${cat.name} — ৳${cat.startingPrice.toLocaleString("bn-BD")} থেকে`}
+            aria-label={`${cat.name} — BDT ${cat.startingPrice.toLocaleString("en-US")} থেকে`}
             className="group relative isolate overflow-hidden rounded-2xl aspect-[4/5] p-5 sm:p-6 flex flex-col justify-between text-white transition duration-300 hover:-translate-y-1 hover:shadow-2xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
             style={{ background: cat.bgColor }}
           >
@@ -77,7 +77,7 @@ export default async function Categories() {
               </b>
               {cat.startingPrice > 0 && (
                 <span className="block mt-1 text-sm opacity-75">
-                  ৳{cat.startingPrice.toLocaleString("bn-BD")} থেকে
+                  BDT {cat.startingPrice.toLocaleString("en-US")} থেকে
                 </span>
               )}
               <span className="mt-4 inline-flex items-center gap-2 text-xs sm:text-sm font-semibold">

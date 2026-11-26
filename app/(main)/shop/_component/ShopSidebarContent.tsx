@@ -144,8 +144,8 @@ export default function ShopSidebarContent({ categories, onClose }: Props) {
         <SectionTitle>সর্বোচ্চ দাম</SectionTitle>
         <div className="space-y-3">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-mute">BDT {SHOP_MIN_PRICE.toLocaleString()}</span>
-            <span className="font-semibold text-ink">BDT {maxPrice.toLocaleString()}</span>
+            <span className="text-mute">BDT {SHOP_MIN_PRICE.toLocaleString("en-US")}</span>
+            <span className="font-semibold text-ink">BDT {maxPrice.toLocaleString("en-US")}</span>
           </div>
           <input
             type="range"

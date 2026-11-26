@@ -1,7 +1,7 @@
 export default function TrackHelp() {
   return (
-    <section className="mt-8 grid sm:grid-cols-3 gap-4 text-sm">
-      <div className="card p-5 flex gap-3">
+    <section className="mt-6 sm:mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 text-sm">
+      <div className="card p-4 sm:p-5 flex gap-3 min-w-0">
         <span className="w-10 h-10 rounded-2xl bg-soft grid place-items-center shrink-0">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24" aria-hidden="true">
             <path d="M4 6h16v12H4z" /><path d="m4 7 8 6 8-6" />
@@ -13,7 +13,7 @@ export default function TrackHelp() {
         </span>
       </div>
 
-      <div className="card p-5 flex gap-3">
+      <div className="card p-4 sm:p-5 flex gap-3 min-w-0">
         <span className="w-10 h-10 rounded-2xl bg-soft grid place-items-center shrink-0">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24" aria-hidden="true">
             <path d="M3 7h11v8H3zM14 10h4l3 3v2h-7z" />
@@ -26,7 +26,7 @@ export default function TrackHelp() {
         </span>
       </div>
 
-      <a href="/" className="card p-5 flex gap-3 hover:border-ink transition-colors">
+      <a href="/" className="card p-4 sm:p-5 flex gap-3 min-w-0 sm:col-span-2 lg:col-span-1 hover:border-ink transition-colors">
         <span className="w-10 h-10 rounded-2xl bg-soft grid place-items-center shrink-0">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24" aria-hidden="true">
             <path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z" />

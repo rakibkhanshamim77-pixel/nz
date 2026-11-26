@@ -14,7 +14,7 @@ interface Props {
   range: number;
 }
 
-const bn = (n: number) => "৳" + Math.round(n).toLocaleString("en-US");
+const bn = (n: number) => "BDT " + Math.round(n).toLocaleString("en-US");
 
 export default function DashboardTopProducts({ products, range }: Props) {
   const maxSold = Math.max(...products.map((p) => p.sold), 1);

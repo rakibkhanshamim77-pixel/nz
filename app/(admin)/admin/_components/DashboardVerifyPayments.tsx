@@ -27,7 +27,7 @@ const GATEWAY_STYLE: Record<string, { label: string; color: string }> = {
   "":     { label: "COD",    color: "#6b7280" },
 };
 
-const bn = (n: number) => "৳" + Math.round(n).toLocaleString("en-US");
+const bn = (n: number) => "BDT " + Math.round(n).toLocaleString("en-US");
 
 function timeAgo(iso?: string) {
   if (!iso) return "";

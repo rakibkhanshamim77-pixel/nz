@@ -93,8 +93,8 @@ export default function TrackSearchForm({ initialPhone = "", initialOrderId = ""
   return (
     <>
       {/* ── Search form ── */}
-      <form onSubmit={onSubmit} className="card p-5 sm:p-7" noValidate>
-        <div className="grid sm:grid-cols-2 gap-4 max-w-2xl">
+      <form onSubmit={onSubmit} className="card p-4 sm:p-7" noValidate>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
           <label className="block">
             <span className="lbl">মোবাইল নম্বর *</span>
             <input
@@ -133,7 +133,7 @@ export default function TrackSearchForm({ initialPhone = "", initialOrderId = ""
           <button
             type="submit"
             disabled={loading}
-            className="h-[52px] px-7 rounded-2xl bg-ink text-bg font-semibold hover:opacity-90 flex items-center gap-2 disabled:opacity-50 transition-opacity"
+            className="w-full sm:w-auto h-[52px] px-7 rounded-2xl bg-ink text-bg font-semibold hover:opacity-90 flex items-center justify-center gap-2 disabled:opacity-50 transition-opacity"
           >
             {loading ? (
               <>

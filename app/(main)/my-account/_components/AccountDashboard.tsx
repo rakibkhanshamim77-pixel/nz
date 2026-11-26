@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { AccountStats } from "./account.types";
 
 function fmt(n: number) {
-  return "৳" + Math.round(n).toLocaleString("en-US");
+  return "BDT " + Math.round(n).toLocaleString("en-US");
 }
 
 export default function AccountDashboard({ stats }: { stats: AccountStats }) {

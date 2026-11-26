@@ -1480,12 +1480,14 @@ table.chart-t td:first-child .inp {
   left: 16px;
   color: var(--mute);
   font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.04em;
   transform: translateY(-50%);
   pointer-events: none;
 }
 
 .money .inp {
-  padding-left: 36px;
+  padding-left: 56px;
   font-family: "Bricolage Grotesque", sans-serif;
   font-size: 17px;
   font-weight: 700;

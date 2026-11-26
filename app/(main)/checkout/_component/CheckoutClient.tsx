@@ -32,7 +32,7 @@ interface Props {
 }
 
 function fmt(n: number) {
-  return "৳" + n.toLocaleString("bn-BD");
+  return "BDT " + n.toLocaleString("en-US");
 }
 
 // MOBILE: 16px text on phones stops iOS Safari from zooming the page when an input is focused
@@ -154,7 +154,7 @@ export default function CheckoutClient({ prefill, delivery }: Props) {
           label:
             res.type === "percentage"
               ? `${res.value}% ছাড়`
-              : `৳${res.value} ছাড়`,
+              : `BDT ${res.value} ছাড়`,
         });
         setCouponError("");
         setCouponInput("");

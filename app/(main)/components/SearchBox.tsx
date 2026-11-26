@@ -16,7 +16,7 @@ interface SearchProduct {
 }
 
 function formatPrice(n: number) {
-  return `৳${n.toLocaleString("en-IN")}`;
+  return `BDT ${n.toLocaleString("en-US")}`;
 }
 
 export default function SearchBox() {

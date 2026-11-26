@@ -11,7 +11,7 @@ interface Props {
   onClose: () => void;
 }
 
-const bn = (n: number) => "৳" + Math.round(n).toLocaleString("en-US");
+const bn = (n: number) => "BDT " + Math.round(n).toLocaleString("en-US");
 
 const fmtDate = (iso: string) =>
   new Date(iso).toLocaleDateString("en-GB", {

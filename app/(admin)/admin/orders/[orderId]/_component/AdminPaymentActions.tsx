@@ -27,7 +27,7 @@ const GATEWAY_LABELS: Record<string, string> = {
 };
 
 function fmt(n: number) {
-  return "৳" + n.toLocaleString("en-US");
+  return "BDT " + n.toLocaleString("en-US");
 }
 
 function fmtDate(d?: string) {

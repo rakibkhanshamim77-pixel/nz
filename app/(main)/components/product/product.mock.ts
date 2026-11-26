@@ -6,9 +6,9 @@ import type { ReviewItem } from "@/db/actions/review.action";
 import type { ProductDetails, ReviewSummaryData } from "./product.types";
 
 const IMAGE_1 =
-  "https://i.ibb.co/5hng7NHJ/U2mmu-P5-DLyr-Wj2o3-Kt-Mhd-SD7z-Hp-Xh-BOo-H7-IWx-Mn-J.webp?w=1200&h=1200&fit=crop&q=100";
+  "/images/demo/maroon-tee.webp";
 const IMAGE_2 =
-  "https://i.ibb.co/gLbPYhP6/QXbn-KTq-Os-BCNeckx-NZu2ll-Hc-HTb-Jxiwvn-IO8-CBFd.webp?w=1200&h=1200&fit=crop&q=100";
+  "/images/demo/pique-polo.webp";
 
 export const MOCK_PRODUCT: ProductDetails = {
   _id: "mock-midnight-oversized-tee",

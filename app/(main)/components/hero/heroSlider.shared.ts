@@ -33,10 +33,10 @@ export function toBengaliDigits(value: number | string): string {
   return String(value).replace(/\d/g, (d) => BN_DIGITS[Number(d)]);
 }
 
-/** 1250 -> "৳১,২৫০" */
+/** 1250 -> "BDT 1,250" */
 export function formatTaka(amount: number): string {
   const grouped = Math.round(amount)
     .toString()
     .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  return `৳${toBengaliDigits(grouped)}`;
+  return `BDT ${grouped}`;
 }

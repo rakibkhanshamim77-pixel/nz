@@ -3,14 +3,19 @@
 import { useState, useTransition } from "react";
 import { requestOtp } from "@/db/actions/auth.action";
 import { BD_PHONE_REGEX } from "@/app/utils/phone";
+import GoogleButton from "./GoogleButton";
 
 interface PhoneStepProps {
   onSuccess: (phone: string) => void;
+  /** Show "Continue with Google" (only when Google login is configured on the server) */
+  googleEnabled?: boolean;
+  /** Error to show from a failed Google sign-in */
+  initialError?: string;
 }
 
-export default function PhoneStep({ onSuccess }: PhoneStepProps) {
+export default function PhoneStep({ onSuccess, googleEnabled = false, initialError = "" }: PhoneStepProps) {
   const [phone, setPhone] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState(initialError);
   const [isPending, startTransition] = useTransition();
 
   const isValid = BD_PHONE_REGEX.test(phone);
@@ -94,6 +99,16 @@ export default function PhoneStep({ onSuccess }: PhoneStepProps) {
         {isPending && <span className="spin" />}
         <span>{isPending ? "পাঠানো হচ্ছে…" : "OTP পাঠান"}</span>
       </button>
+      {googleEnabled && (
+        <>
+          <div className="flex items-center gap-3 my-5 text-xs text-mute" aria-hidden="true">
+            <span className="h-px flex-1 bg-line" />
+            অথবা
+            <span className="h-px flex-1 bg-line" />
+          </div>
+          <GoogleButton />
+        </>
+      )}
       <p className="text-xs text-mute text-center mt-5 leading-relaxed">
         চালিয়ে গেলে আপনি আমাদের{" "}
         <a href="#" className="underline text-ink">

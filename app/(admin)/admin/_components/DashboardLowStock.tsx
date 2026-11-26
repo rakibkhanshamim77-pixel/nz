@@ -64,7 +64,7 @@ export default function DashboardLowStock({ products }: Props) {
                   {p.name}
                 </Link>
                 <span className="text-xs text-[var(--mute)]">
-                  ৳{p.price.toLocaleString("en-US")}
+                  BDT {p.price.toLocaleString("en-US")}
                 </span>
               </div>
 

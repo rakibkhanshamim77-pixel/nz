@@ -27,7 +27,7 @@ export default function ProductImages({
     <FormSection
       id="sec-images"
       title="Product Images"
-      description="Images upload securely to ImgBB when you save"
+      description="Images are saved to the store server when you save"
       icon={<><rect x="3" y="5" width="18" height="14" rx="2" /><circle cx="9" cy="10" r="1.6" /><path d="m21 16-5-5-8 8" /></>}
     >
       <p className="sub-h">Main image (thumbnail) *</p>

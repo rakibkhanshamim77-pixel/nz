@@ -231,16 +231,16 @@ export default function CategoryFormDialog({ open, category, nextOrder, onClose 
             <ColorField label="Accent colour" value={values.accentColor} error={errors.accentColor} onChange={(accentColor) => set({ accentColor })} />
 
             <label className="block">
-              <span className="flbl">Starting price (৳)</span>
+              <span className="flbl">Starting price (BDT)</span>
               <span className="money">
-                <span className="cur">৳</span>
+                <span className="cur">BDT</span>
                 <input className={`inp !h-11 !text-[15px] ${errors.startingPrice ? "err" : ""}`} inputMode="numeric" placeholder="0" value={values.startingPrice} onChange={(e) => set({ startingPrice: e.target.value.replace(/\D/g, "").slice(0, 7) })} />
               </span>
               <span className="hint">
                 <span className="ferr">{errors.startingPrice ?? ""}</span>
                 {!errors.startingPrice && lowest !== null && Number(values.startingPrice || 0) !== lowest && (
                   <button type="button" className="underline underline-offset-2 font-semibold" onClick={() => set({ startingPrice: String(lowest) })}>
-                    Use lowest live price ৳{lowest.toLocaleString("en-US")}
+                    Use lowest live price BDT {lowest.toLocaleString("en-US")}
                   </button>
                 )}
               </span>

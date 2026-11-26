@@ -51,30 +51,39 @@ export default function TrackProgressBar({ currentStep, percentage }: Props) {
 
   return (
     <div role="list" aria-label="অর্ডারের অগ্রগতি"
-      className="relative grid grid-cols-1 sm:grid-cols-5 gap-3.5 sm:gap-0">
-      {/* Track background */}
-      <div className="absolute top-[19px] left-[10%] right-[10%] h-[2px] bg-line hidden sm:block" />
-      {/* Animated fill */}
+      className="relative grid grid-cols-1 md:grid-cols-5 gap-4 md:gap-0">
+      {/* Track background (desktop) */}
+      <div className="absolute top-[19px] left-[10%] right-[10%] h-[2px] bg-line hidden md:block" />
+      {/* Animated fill (desktop) */}
       <div
         ref={fillRef}
-        className="absolute top-[19px] left-[10%] h-[2px] bg-ink hidden sm:block"
+        className="absolute top-[19px] left-[10%] h-[2px] bg-ink hidden md:block"
         style={{ width: 0, transition: "width 0.6s ease" }}
       />
 
       {STEPS.map((step, i) => {
         const done = i < currentStep;
         const now  = i === currentStep;
+        const last = i === STEPS.length - 1;
         return (
           <div
             key={i}
             role="listitem"
             aria-current={now ? "step" : undefined}
-            className="flex items-center gap-3.5 sm:block sm:text-center"
+            className="relative flex items-start gap-3.5 md:block md:text-center md:px-1"
           >
+            {/* Vertical connector (mobile) */}
+            {!last && (
+              <span
+                aria-hidden="true"
+                className={`absolute left-[16px] top-[34px] -bottom-4 w-[2px] md:hidden ${done ? "bg-ink" : "bg-line"}`}
+              />
+            )}
+
             {/* Node */}
             <span
               className={[
-                "relative z-10 flex-shrink-0 w-[34px] h-[34px] sm:w-10 sm:h-10 rounded-full sm:mx-auto grid place-items-center border-2 transition-[background,border-color,color] duration-200",
+                "relative z-10 flex-shrink-0 w-[34px] h-[34px] md:w-10 md:h-10 rounded-full md:mx-auto grid place-items-center border-2 transition-[background,border-color,color] duration-200",
                 done ? "bg-ink border-ink text-bg"
                      : now ? "bg-surface border-ink text-ink"
                             : "bg-surface border-line text-mute",
@@ -90,9 +99,9 @@ export default function TrackProgressBar({ currentStep, percentage }: Props) {
             </span>
 
             {/* Label */}
-            <span className="sm:block sm:mt-3">
-              <b className={`block text-sm ${!done && !now ? "text-mute" : ""}`}>{step.t}</b>
-              <span className="text-xs text-mute sm:hidden">{step.d}</span>
+            <span className="min-w-0 pt-0.5 md:pt-0 md:block md:mt-3">
+              <b className={`block text-sm leading-snug ${!done && !now ? "text-mute" : ""}`}>{step.t}</b>
+              <span className="text-xs text-mute md:hidden">{step.d}</span>
             </span>
           </div>
         );

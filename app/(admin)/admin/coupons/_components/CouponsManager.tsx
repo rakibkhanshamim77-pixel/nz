@@ -128,7 +128,7 @@ function CouponFormModal({
                   }
                 >
                   <option value="percentage">শতাংশ (%)</option>
-                  <option value="fixed">নির্দিষ্ট পরিমাণ (৳)</option>
+                  <option value="fixed">নির্দিষ্ট পরিমাণ (BDT)</option>
                 </select>
               </div>
             </label>
@@ -136,7 +136,7 @@ function CouponFormModal({
               <span className="lbl">
                 মান *{" "}
                 <span className="font-normal text-[var(--mute)]">
-                  ({form.type === "percentage" ? "%" : "৳"})
+                  ({form.type === "percentage" ? "%" : "BDT"})
                 </span>
               </span>
               <input
@@ -154,7 +154,7 @@ function CouponFormModal({
           {/* Min order + Max uses */}
           <div className="grid grid-cols-2 gap-3">
             <label className="field block">
-              <span className="lbl">ন্যূনতম অর্ডার (৳)</span>
+              <span className="lbl">ন্যূনতম অর্ডার (BDT)</span>
               <input
                 type="number"
                 className="inp"
@@ -399,7 +399,7 @@ function CouponsTable({
                 </td>
                 <td>
                   <span className="text-sm">
-                    {c.minOrderAmount > 0 ? `৳${c.minOrderAmount}` : "নেই"}
+                    {c.minOrderAmount > 0 ? `BDT ${c.minOrderAmount}` : "নেই"}
                   </span>
                 </td>
                 <td>
@@ -500,7 +500,7 @@ function CouponsMobileCards({
             <div>
               <p className="text-xs text-[var(--mute)] mb-0.5">ন্যূনতম অর্ডার</p>
               <p className="font-semibold">
-                {c.minOrderAmount > 0 ? `৳${c.minOrderAmount}` : "নেই"}
+                {c.minOrderAmount > 0 ? `BDT ${c.minOrderAmount}` : "নেই"}
               </p>
             </div>
             <div>

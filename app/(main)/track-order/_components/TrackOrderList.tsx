@@ -3,7 +3,7 @@
 import { TrackData, STATUS_LABEL, STATUS_COLOR } from "./track.types";
 
 function fmt(n: number) {
-  return "৳" + Math.round(n).toLocaleString("en-US");
+  return "BDT " + Math.round(n).toLocaleString("en-US");
 }
 
 function fmtDate(iso: string) {
@@ -26,7 +26,7 @@ export default function TrackOrderList({ orders, onSelect }: Props) {
       </p>
 
       {/* ── Desktop table ── */}
-      <div className="hidden sm:block overflow-x-auto rounded-2xl border border-line">
+      <div className="hidden md:block overflow-x-auto rounded-2xl border border-line">
         <table className="w-full text-sm text-left">
           <thead>
             <tr className="bg-soft border-b border-line">
@@ -81,18 +81,18 @@ export default function TrackOrderList({ orders, onSelect }: Props) {
       </div>
 
       {/* ── Mobile cards ── */}
-      <div className="flex flex-col gap-3 sm:hidden">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:hidden gap-3">
         {orders.map((order) => {
           const label = STATUS_LABEL[order.status] ?? order.status;
           const color = STATUS_COLOR[order.status] ?? "border-line text-mute";
           const totalQty = order.items.reduce((s, it) => s + it.quantity, 0);
 
           return (
-            <div key={order.orderNumber} className="card p-4">
+            <div key={order.orderNumber} className="card p-4 flex flex-col min-w-0">
               {/* Top row */}
               <div className="flex items-start justify-between gap-3 mb-3">
-                <div>
-                  <p className="font-mono font-bold text-ink tracking-wide text-sm">{order.orderNumber}</p>
+                <div className="min-w-0">
+                  <p className="font-mono font-bold text-ink tracking-wide text-sm break-all">{order.orderNumber}</p>
                   <p className="text-xs text-mute mt-0.5">{fmtDate(order.createdAt)}</p>
                 </div>
                 <span className={`inline-flex items-center h-6 px-2.5 rounded-full text-xs font-bold border shrink-0 ${color}`}>
@@ -101,18 +101,18 @@ export default function TrackOrderList({ orders, onSelect }: Props) {
               </div>
 
               {/* Items summary */}
-              <p className="text-sm text-mute mb-3 line-clamp-2">
+              <p className="text-sm text-mute mb-3 line-clamp-2 break-words">
                 {order.items.map(it => it.name).join(", ")}
                 <span className="ml-1 text-xs">({totalQty}টি)</span>
               </p>
 
               {/* Bottom row */}
-              <div className="flex items-center justify-between pt-3 border-t border-line">
+              <div className="mt-auto flex items-center justify-between gap-3 pt-3 border-t border-line">
                 <span className="font-bold text-sm">{fmt(order.totalAmount)}</span>
                 <button
                   type="button"
                   onClick={() => onSelect(order)}
-                  className="h-9 px-4 rounded-full bg-ink text-bg text-xs font-semibold hover:opacity-80 transition-opacity"
+                  className="h-9 px-4 rounded-full bg-ink text-bg text-xs font-semibold whitespace-nowrap shrink-0 hover:opacity-80 transition-opacity"
                 >
                   বিস্তারিত দেখুন
                 </button>

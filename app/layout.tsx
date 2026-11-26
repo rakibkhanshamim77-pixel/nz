@@ -162,9 +162,6 @@ export default function RootLayout({
   return (
     <html lang="bn">
       <head>
-        {/* Preconnect to the image CDN so LCP images start loading sooner */}
-        <link rel="preconnect" href="https://i.ibb.co" />
-        <link rel="dns-prefetch" href="https://i.ibb.co" />
         <script
           dangerouslySetInnerHTML={{
             __html: `try{var t=localStorage.getItem('theme');if(t==='dark')document.documentElement.dataset.theme='dark';else if(t==='light')delete document.documentElement.dataset.theme;}catch(e){}`,

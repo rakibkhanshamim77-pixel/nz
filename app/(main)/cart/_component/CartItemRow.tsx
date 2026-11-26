@@ -10,7 +10,7 @@ interface Props {
 }
 
 function fmt(n: number) {
-  return "৳" + n.toLocaleString("bn-BD");
+  return "BDT " + n.toLocaleString("en-US");
 }
 
 function QtyControl({

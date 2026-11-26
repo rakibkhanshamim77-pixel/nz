@@ -10,7 +10,7 @@ interface Props {
   onChange: (patch: Partial<DeliverySettings>) => void;
 }
 
-const taka = (n: number) => "৳" + n.toLocaleString("en-US");
+const taka = (n: number) => "BDT " + n.toLocaleString("en-US");
 
 export default function SettingsDelivery({ value, errors, onChange }: Props) {
   return (
@@ -29,7 +29,7 @@ export default function SettingsDelivery({ value, errors, onChange }: Props) {
     >
       <div className="grid sm:grid-cols-2 gap-4">
         <label className="block">
-          <span className="flbl">Inside Dhaka (৳) *</span>
+          <span className="flbl">Inside Dhaka (BDT) *</span>
           <input
             className={`inp ${errors.insideDhaka ? "err" : ""}`}
             inputMode="numeric"
@@ -43,7 +43,7 @@ export default function SettingsDelivery({ value, errors, onChange }: Props) {
         </label>
 
         <label className="block">
-          <span className="flbl">Outside Dhaka (৳) *</span>
+          <span className="flbl">Outside Dhaka (BDT) *</span>
           <input
             className={`inp ${errors.outsideDhaka ? "err" : ""}`}
             inputMode="numeric"
@@ -80,7 +80,7 @@ export default function SettingsDelivery({ value, errors, onChange }: Props) {
 
       {value.freeDeliveryEnabled && (
         <label className="block mt-4 max-w-[260px]">
-          <span className="flbl">Order subtotal for free delivery (৳)</span>
+          <span className="flbl">Order subtotal for free delivery (BDT)</span>
           <input
             className={`inp ${errors.freeDeliveryThreshold ? "err" : ""}`}
             inputMode="numeric"

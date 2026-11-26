@@ -142,7 +142,7 @@ export default function CustomersTable({ customers, total, search }: Props) {
                 </td>
                 <td className="px-5 py-4">
                   <span className="font-semibold" style={{ color: c.totalSpent > 0 ? "#16a34a" : "var(--mute)" }}>
-                    {c.totalSpent > 0 ? `৳${c.totalSpent.toLocaleString()}` : "—"}
+                    {c.totalSpent > 0 ? `BDT ${c.totalSpent.toLocaleString("en-US")}` : "—"}
                   </span>
                 </td>
                 <td className="px-5 py-4 text-xs" style={{ color: "var(--mute)" }}>
@@ -174,7 +174,7 @@ export default function CustomersTable({ customers, total, search }: Props) {
               </div>
               <div>
                 <p className="font-bold text-sm" style={{ color: "#16a34a" }}>
-                  {c.totalSpent > 0 ? `৳${c.totalSpent.toLocaleString()}` : "—"}
+                  {c.totalSpent > 0 ? `BDT ${c.totalSpent.toLocaleString("en-US")}` : "—"}
                 </p>
                 <p className="text-xs mt-0.5" style={{ color: "var(--mute)" }}>মোট</p>
               </div>

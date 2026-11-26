@@ -126,7 +126,7 @@ export default function ProductsFilters({ categories, total, filtered }: Props) 
 
         {/* Price range */}
         <div>
-          <span className="flbl">Price range (৳)</span>
+          <span className="flbl">Price range (BDT)</span>
           <div className="flex items-center gap-2">
             <input
               type="number"

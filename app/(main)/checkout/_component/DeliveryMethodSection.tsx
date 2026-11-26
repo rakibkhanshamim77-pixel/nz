@@ -8,7 +8,7 @@ export default function DeliveryMethodSection() {
             ডেলিভারি পদ্ধতি
           </h2>
           <p className="text-sm text-mute mt-0.5">
-            ৳১,৫০০ বা তার বেশি অর্ডারে ডেলিভারি ফ্রি
+            BDT 1,500 বা তার বেশি অর্ডারে ডেলিভারি ফ্রি
           </p>
         </div>
       </div>
@@ -26,7 +26,7 @@ export default function DeliveryMethodSection() {
             <span className="text-sm text-mute">১–২ কার্যদিবস</span>
           </span>
           <b className="font-display" data-ship={60}>
-            ৳৬০
+            BDT 60
           </b>
         </label>
         <label className="opt flex items-center gap-3 rounded-2xl p-4">
@@ -42,7 +42,7 @@ export default function DeliveryMethodSection() {
             <span className="text-sm text-mute">২–৪ কার্যদিবস</span>
           </span>
           <b className="font-display" data-ship={120}>
-            ৳১২০
+            BDT 120
           </b>
         </label>
       </div>

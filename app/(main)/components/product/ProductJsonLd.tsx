@@ -11,14 +11,15 @@ export default function ProductJsonLd({ product, reviewSummary, url }: ProductJs
   const inStock = product.sizes.length > 0 ? product.sizes.some((s) => s.stock > 0) : product.stock > 0;
 
   const base = process.env.NEXT_PUBLIC_SITE_URL || "https://neeshanz.com";
-  const absoluteUrl = url.startsWith("http") ? url : `${base}${url}`;
+  const toAbsolute = (u: string) => (u.startsWith("http") ? u : `${base}${u}`);
+  const absoluteUrl = toAbsolute(url);
 
   const data = {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.name,
     description: product.description,
-    image: product.images,
+    image: product.images.map(toAbsolute),
     sku: product._id,
     brand: { "@type": "Brand", name: "Neeshanz" },
     ...(product.category ? { category: product.category.name } : {}),

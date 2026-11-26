@@ -102,9 +102,9 @@ export default function ShopProductCard({ product, priority = false }: Props) {
         {/* price */}
         <div className="flex items-baseline gap-2 mt-auto mb-3">
           {regularPrice > salePrice && (
-            <s className="text-xs text-mute">BDT {regularPrice.toLocaleString()}</s>
+            <s className="text-xs text-mute">BDT {regularPrice.toLocaleString("en-US")}</s>
           )}
-          <b className="font-display text-lg text-ink">BDT {salePrice.toLocaleString()}</b>
+          <b className="font-display text-lg text-ink">BDT {salePrice.toLocaleString("en-US")}</b>
         </div>
 
         {/* CTA */}

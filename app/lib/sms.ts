@@ -151,7 +151,7 @@ export async function sendOrderConfirmation(
     "",
     `আপনার অর্ডার সফলভাবে গৃহীত হয়েছে! 🎉`,
     `অর্ডার নং: ${orderNumber}`,
-    `মোট: ৳${totalAmount.toLocaleString("en-US")}`,
+    `মোট: BDT ${totalAmount.toLocaleString("en-US")}`,
     paymentLine,
     "",
     `অর্ডার ট্র্যাক করুন:\n${trackLink(orderNumber)}`,

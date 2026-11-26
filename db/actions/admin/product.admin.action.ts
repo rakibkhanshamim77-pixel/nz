@@ -6,7 +6,7 @@ import { requirePermission } from "@/app/utils/authz";
 import dbConnect from "@/db/connect/dbConnect";
 import Product from "@/db/models/Product";
 import Category from "@/db/models/Category";
-import { isImgbbUrl } from "@/db/utils/imageHosts";
+import { isUploadedImageUrl } from "@/db/utils/imageHosts";
 import { slugify } from "@/db/utils/slug";
 import {
   PRODUCT_LIMITS,
@@ -46,12 +46,12 @@ async function checkAgainstDb(
   for (const urls of Object.values(current?.colorImages ?? {}))
     urls.forEach((u) => keptImages.add(u));
 
-  if (data.images.some((u) => !isImgbbUrl(u) && !keptImages.has(u)))
+  if (data.images.some((u) => !isUploadedImageUrl(u, "products") && !keptImages.has(u)))
     errors.images = "One or more images didn't upload correctly. Re-add them and try again.";
 
   // Validate color image URLs
   for (const urls of Object.values(data.colorImages)) {
-    if (urls.some((u) => !isImgbbUrl(u) && !keptImages.has(u))) {
+    if (urls.some((u) => !isUploadedImageUrl(u, "products") && !keptImages.has(u))) {
       errors.colorImages = "One or more color images didn't upload correctly. Re-add them and try again.";
       break;
     }

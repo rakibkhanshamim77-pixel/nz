@@ -140,7 +140,7 @@ export default function WhyUs() {
 
           <div className="mt-auto flex items-center justify-between border-t border-line pt-5">
             <span className="text-sm text-mute">এক্সচেঞ্জ চার্জ</span>
-            <b className="font-display text-lg">৳০</b>
+            <b className="font-display text-lg">BDT 0</b>
           </div>
         </article>
       </div>

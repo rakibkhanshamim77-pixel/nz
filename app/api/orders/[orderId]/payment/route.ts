@@ -6,6 +6,7 @@ import { verifyGuestToken } from "@/lib/guestToken";
 import dbConnect from "@/db/connect/dbConnect";
 import Order from "@/db/models/Order";
 import { getPaymentMethod } from "@/lib/paymentConfig";
+import { saveUploadedImage } from "@/db/utils/localStorage";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -140,9 +141,8 @@ export async function POST(
     return NextResponse.json({ error: "অবৈধ পেমেন্ট মাধ্যম" }, { status: 400 });
   }
 
-  // Screenshot is optional but if provided, validate it
+  // Screenshot is optional but if provided, validate it (it is saved to disk after the order checks pass)
   let screenshotUrl: string | undefined;
-  let screenshotDisplayUrl: string | undefined;
 
   if (screenshot && screenshot.size > 0) {
     if (!ALLOWED_TYPES.includes(screenshot.type)) {
@@ -150,37 +150,6 @@ export async function POST(
     }
     if (screenshot.size > MAX_FILE_SIZE) {
       return NextResponse.json({ error: "ছবির আকার সর্বোচ্চ ৫ MB হতে হবে" }, { status: 400 });
-    }
-
-    // Upload to ImgBB server-side
-    const imgbbKey = process.env.IMGBB_API_KEY;
-    if (!imgbbKey) {
-      return NextResponse.json({ error: "Screenshot upload is not configured" }, { status: 500 });
-    }
-
-    try {
-      const imgbbForm = new FormData();
-      imgbbForm.append("key", imgbbKey);
-      imgbbForm.append("image", screenshot, screenshot.name || "screenshot.jpg");
-
-      const imgbbRes = await fetch("https://api.imgbb.com/1/upload", {
-        method: "POST",
-        body: imgbbForm,
-      });
-
-      if (!imgbbRes.ok) {
-        return NextResponse.json({ error: "স্ক্রিনশট আপলোড ব্যর্থ হয়েছে। আবার চেষ্টা করুন।" }, { status: 502 });
-      }
-
-      const imgbbData = await imgbbRes.json();
-      if (!imgbbData?.success || !imgbbData?.data?.url) {
-        return NextResponse.json({ error: "স্ক্রিনশট আপলোড ব্যর্থ হয়েছে" }, { status: 502 });
-      }
-
-      screenshotUrl = imgbbData.data.image?.url ?? imgbbData.data.url;
-      screenshotDisplayUrl = imgbbData.data.display_url ?? imgbbData.data.url;
-    } catch {
-      return NextResponse.json({ error: "স্ক্রিনশট আপলোড ব্যর্থ হয়েছে। আবার চেষ্টা করুন।" }, { status: 502 });
     }
   }
 
@@ -200,6 +169,27 @@ export async function POST(
       );
     }
 
+    // Save the screenshot to the server's upload folder (private: only staff can view it)
+    if (screenshot && screenshot.size > 0) {
+      const saved = await saveUploadedImage(
+        new Uint8Array(await screenshot.arrayBuffer()),
+        "payments",
+        `payment-${order.orderNumber ?? params.orderId}`,
+      );
+      if (!saved.ok) {
+        return NextResponse.json(
+          {
+            error:
+              saved.error === "bad_type"
+                ? "শুধু JPG, PNG, বা WebP ছবি আপলোড করুন"
+                : "স্ক্রিনশট আপলোড ব্যর্থ হয়েছে। আবার চেষ্টা করুন।",
+          },
+          { status: saved.error === "write_failed" ? 500 : 400 },
+        );
+      }
+      screenshotUrl = saved.url;
+    }
+
     const $set: Record<string, unknown> = {
       "payment.gateway": gateway,
       "payment.transactionId": transactionId,
@@ -211,7 +201,7 @@ export async function POST(
 
     if (screenshotUrl) {
       $set["payment.screenshotUrl"] = screenshotUrl;
-      $set["payment.screenshotDisplayUrl"] = screenshotDisplayUrl;
+      $set["payment.screenshotDisplayUrl"] = screenshotUrl;
     }
 
     const activity = {

@@ -9,7 +9,7 @@ import { ORDER_STATUS_LABEL, ORDER_STATUS_COLOR } from "./account.types";
 const PAGE_SIZE = 6;
 
 function fmt(n: number) {
-  return "৳" + Math.round(n).toLocaleString("en-US");
+  return "BDT " + Math.round(n).toLocaleString("en-US");
 }
 
 function fmtDate(iso: string) {

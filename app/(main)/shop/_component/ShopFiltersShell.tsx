@@ -89,7 +89,7 @@ function ActiveChips() {
       remove: () => toggleColor(v),
     })),
     ...(maxPrice < SHOP_MAX_PRICE
-      ? [{ label: `≤ BDT ${maxPrice.toLocaleString()}`, remove: () => setMaxPrice(SHOP_MAX_PRICE) }]
+      ? [{ label: `≤ BDT ${maxPrice.toLocaleString("en-US")}`, remove: () => setMaxPrice(SHOP_MAX_PRICE) }]
       : []),
     ...(inStock  ? [{ label: "স্টকে আছে",  remove: () => setInStock(false)  }] : []),
     ...(onSale   ? [{ label: "ছাড়ের পণ্য",  remove: () => setOnSale(false)   }] : []),

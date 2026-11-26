@@ -52,7 +52,7 @@ export default function DeliveryExchangeForm({
               setForm((f) => ({ ...f, paragraph1: e.target.value }));
               setSaved(false);
             }}
-            placeholder="ঢাকার ভেতরে ৳৬০…"
+            placeholder="ঢাকার ভেতরে BDT 60…"
             required
           />
         </label>

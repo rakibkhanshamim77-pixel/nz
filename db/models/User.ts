@@ -41,6 +41,9 @@ export interface IUser {
   isEmailVerified: boolean;
   profileImage?: string;
 
+  /** Google account id ("sub"), set when the user signs in with Google */
+  googleId?: string;
+
   /** Only used for admin / staff password login. Customers log in with OTP. */
   password?: string;
 
@@ -122,6 +125,8 @@ const UserSchema = new Schema<IUserDocument, IUserModel>(
     isEmailVerified: { type: Boolean, default: false },
 
     profileImage: { type: String, default: undefined },
+
+    googleId: { type: String, unique: true, sparse: true, set: emptyToUndefined },
 
     password: { type: String, select: false, minlength: 8 },
 

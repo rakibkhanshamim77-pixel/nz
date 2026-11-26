@@ -1,11 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    remotePatterns: [
-      { protocol: "https", hostname: "i.ibb.co" },
-      { protocol: "https", hostname: "i.ibb.co.com" },
-      // add other image hosts here
-    ],
+    // Product images are uploaded to this server and served from /uploads/... (same origin),
+    // so no remote image hosts are needed. Add one here only if you start using an external CDN.
+    remotePatterns: [],
     // Serve modern formats (avif → webp → original) when the browser supports them
     formats: ["image/avif", "image/webp"],
     // Reasonable device sizes covering the product image breakpoints

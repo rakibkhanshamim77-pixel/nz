@@ -24,14 +24,14 @@ export default function ProductPricing({ regularPrice, salePrice, errors, onChan
     <FormSection
       id="sec-pricing"
       title="Pricing"
-      description="Bangladeshi Taka (৳), whole amounts"
+      description="Bangladeshi Taka (BDT), whole amounts"
       icon={<><path d="m14 4-8 8 6 6 8-8V4z" /><circle cx="16" cy="8" r="1.4" /></>}
     >
       <div className="grid sm:grid-cols-2 gap-4">
         <label className="block">
           <span className="flbl">Regular Price *</span>
           <span className="money">
-            <span className="cur">৳</span>
+            <span className="cur">BDT</span>
             <input
               type="text"
               inputMode="numeric"
@@ -53,7 +53,7 @@ export default function ProductPricing({ regularPrice, salePrice, errors, onChan
             Sale Price <span className="font-medium">(optional)</span>
           </span>
           <span className="money">
-            <span className="cur">৳</span>
+            <span className="cur">BDT</span>
             <input
               type="text"
               inputMode="numeric"
