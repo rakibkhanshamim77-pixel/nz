@@ -1,11 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
+import type { Variants } from "framer-motion";
 import type { ReactNode } from "react";
 
 type Variant = "fadeUp" | "fadeIn" | "fadeLeft" | "fadeRight" | "zoom";
 
-const variants: Record<Variant, { hidden: object; visible: object }> = {
+const variants: Record<Variant, Variants> = {
   fadeUp:    { hidden: { opacity: 0, y: 36 },       visible: { opacity: 1, y: 0 } },
   fadeIn:    { hidden: { opacity: 0 },               visible: { opacity: 1 } },
   fadeLeft:  { hidden: { opacity: 0, x: -32 },      visible: { opacity: 1, x: 0 } },

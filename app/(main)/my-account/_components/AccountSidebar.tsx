@@ -101,10 +101,17 @@ export default function AccountSidebar({ orderCount, addressCount }: Props) {
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
-    const sync = () => setActive(window.location.hash.slice(1) || "dashboard");
-    sync();
-    window.addEventListener("hashchange", sync);
-    return () => window.removeEventListener("hashchange", sync);
+    const syncHash = () => setActive(window.location.hash.slice(1) || "dashboard");
+    const onNav = (e: Event) => setActive((e as CustomEvent<string>).detail);
+    syncHash();
+    window.addEventListener("hashchange", syncHash);
+    window.addEventListener("popstate", syncHash);
+    window.addEventListener("account-nav", onNav);
+    return () => {
+      window.removeEventListener("hashchange", syncHash);
+      window.removeEventListener("popstate", syncHash);
+      window.removeEventListener("account-nav", onNav);
+    };
   }, []);
 
   function handleLogout() {
@@ -118,20 +125,6 @@ export default function AccountSidebar({ orderCount, addressCount }: Props) {
     orders: orderCount,
     addresses: addressCount,
   };
-
-  const allItems = [
-    ...NAV.map((item) => ({ ...item, isLogout: false as const })),
-    {
-      id: "logout",
-      label: "লগআউট",
-      isLogout: true as const,
-      icon: (
-        <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-          <path d="M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4M10 8l-4 4 4 4M6 12h11" />
-        </svg>
-      ),
-    },
-  ];
 
   return (
     <aside className="lg:sticky lg:top-24">
@@ -166,51 +159,69 @@ export default function AccountSidebar({ orderCount, addressCount }: Props) {
         </button>
       </nav>
 
-      {/* ── Mobile: horizontal scrollable icon+label tab bar ── */}
-      <nav
-        className="lg:hidden card px-2 py-1 flex gap-0.5 overflow-x-auto no-scrollbar"
-        aria-label="অ্যাকাউন্ট মেনু"
-      >
-        {allItems.map((item) => {
-          const isActive = !item.isLogout && active === item.id;
-          return item.isLogout ? (
-            <button
-              key="logout"
-              type="button"
-              onClick={handleLogout}
-              disabled={isPending}
-              className="flex flex-col items-center justify-center gap-1 flex-1 min-w-[52px] py-2 px-1 rounded-xl text-mute disabled:opacity-50 transition-colors"
-            >
-              {item.icon}
-              <span className="text-[9px] font-semibold leading-tight whitespace-nowrap">
-                {isPending ? "…" : item.label}
-              </span>
-            </button>
-          ) : (
+      {/* ── Mobile: native-app style vertical list menu — hidden when viewing a sub-section ── */}
+      <nav className={`lg:hidden card overflow-hidden ${active !== "dashboard" ? "hidden" : ""}`} aria-label="অ্যাকাউন্ট মেনু">
+        {NAV.map((item, i) => {
+          const isActive = active === item.id;
+          return (
             <Link
               key={item.id}
               href={`#${item.id}`}
-              onClick={() => setActive(item.id)}
-              className={`relative flex flex-col items-center justify-center gap-1 flex-1 min-w-[52px] py-2 px-1 rounded-xl transition-colors ${
-                isActive ? "bg-ink text-bg" : "text-mute"
-              }`}
+              onClick={() => {
+                setActive(item.id);
+                window.dispatchEvent(new CustomEvent("account-nav", { detail: item.id }));
+              }}
+              className={`flex items-center gap-3 px-4 py-3.5 ${i < NAV.length - 1 ? "border-b border-line" : ""} hover:bg-soft transition-colors`}
             >
-              {item.icon}
-              <span className="text-[9px] font-semibold leading-tight whitespace-nowrap">
-                {item.label === "ড্যাশবোর্ড" ? "হোম" :
-                 item.label === "আমার অর্ডার" ? "অর্ডার" :
-                 item.label}
+              <span className={isActive ? "text-ink" : "text-mute"}>{item.icon}</span>
+              <span className={`flex-1 text-sm font-medium ${isActive ? "font-semibold text-ink" : "text-ink"}`}>
+                {item.label}
               </span>
               {badges[item.id] ? (
-                <span className={`absolute top-1 right-1 grid place-items-center min-w-[14px] h-3.5 px-0.5 rounded-full text-[8px] font-bold ${
-                  isActive ? "bg-bg/25 text-bg" : "bg-soft text-ink"
-                }`}>
-                  {badges[item.id]}
-                </span>
+                <span className="cnt">{badges[item.id]}</span>
               ) : null}
+              <svg className="w-4 h-4 text-mute shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m9 18 6-6-6-6" />
+              </svg>
             </Link>
           );
         })}
+
+        {/* Extra links */}
+        {[
+          { label: "অর্ডার ট্র্যাক", href: "/track-order", icon: <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><rect x={2} y={7} width={20} height={14} rx={2} /><path d="M16 7V5a2 2 0 0 0-4 0v2M9 11v6M15 11v6" /></svg> },
+          { label: "সাহায্য ও সহায়তা", href: "/contact", icon: <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><circle cx={12} cy={12} r={10} /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01" /></svg> },
+          { label: "আমাদের সম্পর্কে", href: "/about", icon: <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><circle cx={12} cy={12} r={10} /><path d="M12 16v-4M12 8h.01" /></svg> },
+        ].map((link) => (
+          <Link
+            key={link.href}
+            href={link.href}
+            className="flex items-center gap-3 px-4 py-3.5 border-t border-line hover:bg-soft transition-colors"
+          >
+            <span className="text-mute">{link.icon}</span>
+            <span className="flex-1 text-sm font-medium text-ink">{link.label}</span>
+            <svg className="w-4 h-4 text-mute shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m9 18 6-6-6-6" />
+            </svg>
+          </Link>
+        ))}
+
+        {/* Logout */}
+        <div className="border-t border-line">
+          <button
+            type="button"
+            onClick={handleLogout}
+            disabled={isPending}
+            className="w-full flex items-center gap-3 px-4 py-3.5 text-wine hover:bg-soft transition-colors disabled:opacity-50"
+          >
+            <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+              <path d="M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4M10 8l-4 4 4 4M6 12h11" />
+            </svg>
+            <span className="flex-1 text-sm font-semibold text-left">
+              {isPending ? "লগআউট হচ্ছে…" : "লগআউট"}
+            </span>
+          </button>
+        </div>
       </nav>
     </aside>
   );

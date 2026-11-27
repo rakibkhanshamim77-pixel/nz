@@ -47,11 +47,11 @@ export const MOCK_PRODUCT: ProductDetails = {
   sizeChart: {
     unit: "ইঞ্চি",
     rows: [
-      { size: "S", chest: 40, length: 27, shoulder: 20 },
-      { size: "M", chest: 42, length: 28, shoulder: 21 },
-      { size: "L", chest: 44, length: 29, shoulder: 22 },
-      { size: "XL", chest: 46, length: 30, shoulder: 23 },
-      { size: "XXL", chest: 48, length: 31, shoulder: 24 },
+      { size: "S", chest: 40, length: 27, sleeve: 20 },
+      { size: "M", chest: 42, length: 28, sleeve: 21 },
+      { size: "L", chest: 44, length: 29, sleeve: 22 },
+      { size: "XL", chest: 46, length: 30, sleeve: 23 },
+      { size: "XXL", chest: 48, length: 31, sleeve: 24 },
     ],
     note: "ওভারসাইজড ফিট — রেগুলার ফিট চাইলে এক সাইজ ছোট নিন।",
   },

@@ -78,7 +78,7 @@ export default function MobileStickyBuyBar({
   };
 
   return (
-    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-[var(--surface)] border-t border-[var(--line)] px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-lg">
+    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[56] bg-[var(--surface)] border-t border-[var(--line)] px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-lg">
       <div className="flex items-center gap-3">
         <div className="min-w-0">
           <p className="text-[11px] uppercase tracking-wider text-[var(--mute)] truncate">

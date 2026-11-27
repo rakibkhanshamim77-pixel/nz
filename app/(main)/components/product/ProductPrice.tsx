@@ -11,7 +11,7 @@ export default function ProductPrice({ regularPrice, salePrice }: ProductPricePr
   return (
     <>
       <div className="flex items-end gap-3 mt-4">
-        <b className="font-display font-extrabold text-3xl sm:text-4xl leading-none">
+        <b className="font-display font-extrabold text-2xl sm:text-4xl leading-none">
           <span className="sr-only">দাম: </span>
           {formatPrice(salePrice)}
         </b>

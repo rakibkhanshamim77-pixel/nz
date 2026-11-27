@@ -27,8 +27,8 @@ export default async function MainLayout({
     <>
       <Announcement />
       <Header />
-      {/* pb-24 on mobile so content isn't hidden behind the fixed bottom nav */}
-      <div className="pb-24 lg:pb-0">
+      {/* pb-16 on mobile so content isn't hidden behind the fixed bottom nav */}
+      <div className="pb-16 lg:pb-0">
         {children}
       </div>
       <Suspense fallback={null}>

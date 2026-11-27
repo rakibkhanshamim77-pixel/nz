@@ -111,13 +111,16 @@ export default async function ProductPage({ params }: ProductPageProps) {
         stock={product.stock}
         salePrice={product.salePrice}
       >
-        <main className="max-w-6xl mx-auto px-4 sm:px-6 pt-5 sm:pt-8 pb-32 lg:pb-20">
-          <ProductBreadcrumb
-            productName={product.name}
-            category={product.category}
-          />
+        <main className="max-w-6xl mx-auto px-4 sm:px-6 pt-0 sm:pt-8 pb-32 lg:pb-20">
+          {/* Breadcrumb: desktop only */}
+          <div className="hidden sm:block">
+            <ProductBreadcrumb
+              productName={product.name}
+              category={product.category}
+            />
+          </div>
 
-          <div className="grid lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] gap-8 lg:gap-12 items-start">
+          <div className="grid lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] gap-0 lg:gap-12 items-start">
             <ProductGallery
               name={product.name}
               images={product.images}
@@ -125,22 +128,36 @@ export default async function ProductPage({ params }: ProductPageProps) {
               isNew={product.isNew}
             />
 
-            <section aria-label="পণ্যের তথ্য">
+            {/* Info section — on mobile slides up over the gallery with rounded top */}
+            <section
+              aria-label="পণ্যের তথ্য"
+              className="-mt-6 relative z-10 rounded-t-3xl bg-bg pt-5 pb-2 sm:mt-0 sm:rounded-none sm:bg-transparent sm:pt-0 sm:pb-0 lg:mt-0"
+            >
+              {/* Drag handle pill — mobile only */}
+              <div className="lg:hidden flex justify-center mb-4">
+                <span className="w-10 h-1 rounded-full bg-line" />
+              </div>
+
               <ProductInfo product={product} reviewSummary={reviewSummary} />
 
-              <div className="h-px bg-[var(--line)] my-6" />
+              <div className="h-px bg-[var(--line)] my-5 sm:my-6" />
 
               <ProductColorSelector />
               <ProductSizeSelector
                 hasSizeChart={Boolean(product.sizeChart?.rows.length)}
               />
-              <ProductActions
-                productId={product._id}
-                slug={product.slug}
-                name={product.name}
-                image={product.images[0] ?? ""}
-                sku={product._id}
-              />
+
+              {/* Desktop actions (buy buttons) — hidden on mobile, mobile uses sticky bar */}
+              <div className="hidden sm:block">
+                <ProductActions
+                  productId={product._id}
+                  slug={product.slug}
+                  name={product.name}
+                  image={product.images[0] ?? ""}
+                  sku={product._id}
+                />
+              </div>
+
               <ProductPerks />
               <ProductDetailsAccordion product={product} />
             </section>

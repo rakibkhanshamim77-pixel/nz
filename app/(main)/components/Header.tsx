@@ -6,7 +6,7 @@ import SearchBox from "./SearchBox";
 export default function Header() {
   return (
     <header className="sticky top-0 z-40 bg-bg/85 backdrop-blur border-b border-line">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center gap-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 md:h-16 flex items-center gap-3 md:gap-4">
         <Logo />
         <Nav />
         <SearchBox />

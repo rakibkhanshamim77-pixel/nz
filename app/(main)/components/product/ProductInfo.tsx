@@ -15,7 +15,7 @@ export default function ProductInfo({ product, reviewSummary }: ProductInfoProps
       {product.eyebrow && (
         <p className="text-xs font-semibold tracking-[.22em] uppercase text-mute mb-2">{product.eyebrow}</p>
       )}
-      <h1 className="font-display font-extrabold text-[2rem] sm:text-[2.6rem] tracking-tight leading-[1.05]">
+      <h1 className="font-display font-extrabold text-[1.6rem] sm:text-[2.6rem] tracking-tight leading-[1.1]">
         {product.name}
       </h1>
 

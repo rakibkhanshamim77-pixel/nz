@@ -48,6 +48,13 @@ export default function ShopFiltersShell({ categories, totalCount, children }: P
 
       {/* Main column */}
       <div className="min-w-0">
+        {/* Mobile category quick-filter chips */}
+        {categories.length > 0 && (
+          <Suspense>
+            <MobileCategoryChips categories={categories} />
+          </Suspense>
+        )}
+
         <Suspense>
           <ShopToolbar
             totalCount={totalCount}
@@ -67,6 +74,7 @@ export default function ShopFiltersShell({ categories, totalCount, children }: P
 }
 
 /* ── Active filter chips ───────────────────────────────────────────── */
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useShopUrl } from "./useShopUrl";
 import { SHOP_COLOR_OPTIONS, SHOP_MAX_PRICE } from "./shop.constants";
 
@@ -117,6 +125,55 @@ function ActiveChips() {
           </svg>
         </button>
       ))}
+    </div>
+  );
+}
+
+/* ── Mobile category quick-filter chips ─────────────────────────────── */
+
+function MobileCategoryChips({ categories }: { categories: CategoryItem[] }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const { cats, toggleCat } = useShopUrl();
+
+  function clearCats() {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("cat");
+    params.delete("page");
+    const qs = params.toString();
+    router.push(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  }
+
+  return (
+    <div className="lg:hidden -mx-4 sm:-mx-6 px-4 sm:px-6 overflow-x-auto no-scrollbar mb-4">
+      <div className="flex gap-2 w-max pb-1">
+        <button
+          type="button"
+          onClick={clearCats}
+          className={`shrink-0 h-9 px-4 rounded-full text-sm font-semibold border transition-colors ${
+            cats.length === 0
+              ? "bg-ink text-bg border-ink"
+              : "bg-surface text-mute border-line hover:border-ink"
+          }`}
+        >
+          সব
+        </button>
+        {categories.map((cat) => (
+          <button
+            key={cat.id}
+            type="button"
+            onClick={() => toggleCat(cat.filter)}
+            className={`shrink-0 h-9 px-4 rounded-full text-sm font-semibold border transition-colors ${
+              cats.includes(cat.filter)
+                ? "bg-ink text-bg border-ink"
+                : "bg-surface text-mute border-line hover:border-ink"
+            }`}
+          >
+            {cat.name}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

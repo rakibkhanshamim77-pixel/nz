@@ -2,28 +2,27 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Store, ShoppingCart, User, LogIn } from "lucide-react";
-import CartBadgeCount from "./CartBadgeCount";
+import { Home, LayoutGrid, ShoppingBag, User, LogIn } from "lucide-react";
+import { useCart } from "@/lib/CartProvider";
 
-interface MobileNavClientProps {
+interface Props {
   isLoggedIn: boolean;
 }
 
 const NAV_ITEMS = [
-  { id: "home", title: "হোম", icon: Home, href: "/" },
-  { id: "shop", title: "শপ", icon: Store, href: "/shop" },
-  { id: "cart", title: "কার্ট", icon: ShoppingCart, href: "/cart", badge: true },
+  { id: "home", label: "হোম", icon: Home, href: "/" },
+  { id: "categories", label: "ক্যাটাগরি", icon: LayoutGrid, href: "/categories" },
+  { id: "cart", label: "কার্ট", icon: ShoppingBag, href: "/cart" },
 ];
 
-export default function MobileNavClient({ isLoggedIn }: MobileNavClientProps) {
+export default function MobileNavClient({ isLoggedIn }: Props) {
   const pathname = usePathname();
+  const { itemCount } = useCart();
 
-  // These pages have their own fixed UI or focused flows — hide the nav there
   if (
     pathname.startsWith("/product/") ||
     pathname.startsWith("/checkout") ||
-    pathname.startsWith("/payment") ||
-    pathname.startsWith("/cart")
+    pathname.startsWith("/payment")
   ) return null;
 
   const isActive = (href: string) =>
@@ -31,60 +30,60 @@ export default function MobileNavClient({ isLoggedIn }: MobileNavClientProps) {
 
   return (
     <nav
-      className="fixed bottom-3 left-1/2 -translate-x-1/2 z-[55] lg:hidden bg-surface/95 backdrop-blur border border-line rounded-2xl shadow-xl px-3 py-2 flex gap-1"
-      style={{ marginBottom: "env(safe-area-inset-bottom, 0px)" }}
+      className="fixed bottom-0 inset-x-0 z-[55] lg:hidden bg-bg/95 backdrop-blur-md border-t border-line"
+      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
     >
-      {NAV_ITEMS.map(({ id, title, icon: Icon, href, badge }) => {
-        const active = isActive(href);
-        return (
-          <Link
-            key={id}
-            href={href}
-            className={`w-16 py-1.5 flex flex-col items-center text-xs transition-colors ${
-              active ? "font-semibold text-ink" : "text-mute"
-            }`}
-          >
-            <span className="relative w-10 h-10 grid place-items-center mb-0.5">
-              <Icon
-                className={`w-5 h-5 transition-colors ${active ? "stroke-[2.5]" : "stroke-2"}`}
-              />
-              {badge && <CartBadgeCount />}
-            </span>
-            {title}
-          </Link>
-        );
-      })}
+      <div className="flex items-stretch h-14">
+        {NAV_ITEMS.map(({ id, label, icon: Icon, href }) => {
+          const active = isActive(href);
+          return (
+            <Link
+              key={id}
+              href={href}
+              className={`relative flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors ${
+                active ? "text-ink" : "text-mute"
+              }`}
+            >
+              {/* Active indicator */}
+              {active && (
+                <span className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-ink" />
+              )}
+              <span className="relative">
+                <Icon
+                  className="w-[22px] h-[22px]"
+                  strokeWidth={active ? 2.5 : 1.75}
+                />
+                {id === "cart" && itemCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 rounded-full bg-ink text-bg text-[9px] font-bold grid place-items-center">
+                    {itemCount > 9 ? "9+" : itemCount}
+                  </span>
+                )}
+              </span>
+              <span className="text-[9px] font-medium leading-none">{label}</span>
+            </Link>
+          );
+        })}
 
-      {/* Account / Login — only shown when logged out */}
-      {isLoggedIn ? (
+        {/* Account / Login */}
         <Link
-          href="/my-account"
-          className={`w-16 py-1.5 flex flex-col items-center text-xs transition-colors ${
-            isActive("/my-account") ? "font-semibold text-ink" : "text-mute"
+          href={isLoggedIn ? "/my-account" : "/login"}
+          className={`relative flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors ${
+            isActive(isLoggedIn ? "/my-account" : "/login") ? "text-ink" : "text-mute"
           }`}
         >
-          <span className="w-10 h-10 grid place-items-center mb-0.5">
-            <User
-              className={`w-5 h-5 transition-colors ${isActive("/my-account") ? "stroke-[2.5]" : "stroke-2"}`}
-            />
+          {isActive(isLoggedIn ? "/my-account" : "/login") && (
+            <span className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-ink" />
+          )}
+          {isLoggedIn ? (
+            <User className="w-[22px] h-[22px]" strokeWidth={isActive("/my-account") ? 2.5 : 1.75} />
+          ) : (
+            <LogIn className="w-[22px] h-[22px]" strokeWidth={isActive("/login") ? 2.5 : 1.75} />
+          )}
+          <span className="text-[9px] font-medium leading-none">
+            {isLoggedIn ? "অ্যাকাউন্ট" : "লগইন"}
           </span>
-          আমার
         </Link>
-      ) : (
-        <Link
-          href="/login"
-          className={`w-16 py-1.5 flex flex-col items-center text-xs transition-colors ${
-            isActive("/login") ? "font-semibold text-ink" : "text-mute"
-          }`}
-        >
-          <span className="w-10 h-10 grid place-items-center mb-0.5">
-            <LogIn
-              className={`w-5 h-5 transition-colors ${isActive("/login") ? "stroke-[2.5]" : "stroke-2"}`}
-            />
-          </span>
-          লগইন
-        </Link>
-      )}
+      </div>
     </nav>
   );
 }

@@ -4,7 +4,7 @@ export interface ISizeChartRow {
   size: string;
   chest?: number;
   length?: number;
-  shoulder?: number;
+  sleeve?: number; // add
 }
 
 export interface IProduct {

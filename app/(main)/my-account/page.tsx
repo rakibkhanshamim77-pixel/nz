@@ -11,6 +11,7 @@ import AccountOrders from "./_components/AccountOrders";
 import AccountProfile from "./_components/AccountProfile";
 import AccountAddresses from "./_components/AccountAddresses";
 import AccountSettings from "./_components/AccountSettings";
+import AccountContentClient from "./_components/AccountContentClient";
 import type {
   AccountOrder,
   AccountAddress,
@@ -120,13 +121,15 @@ export default async function MyAccountPage() {
       <div className="grid lg:grid-cols-[220px_minmax(0,1fr)] gap-4 lg:gap-8 items-start">
         <AccountSidebar orderCount={orders.length} addressCount={addresses.length} />
 
-        <div className="space-y-6">
-          <AccountDashboard stats={stats} />
-          <AccountOrders orders={orders} />
-          <AccountProfile user={user} />
-          <AccountAddresses addresses={addresses} />
-          <AccountSettings />
-        </div>
+        <AccountContentClient
+          sections={[
+            { id: "dashboard",  label: "ড্যাশবোর্ড",   content: <AccountDashboard stats={stats} /> },
+            { id: "orders",     label: "আমার অর্ডার",  content: <AccountOrders orders={orders} /> },
+            { id: "profile",    label: "প্রোফাইল",     content: <AccountProfile user={user} /> },
+            { id: "addresses",  label: "ঠিকানা",       content: <AccountAddresses addresses={addresses} /> },
+            { id: "settings",   label: "সেটিংস",       content: <AccountSettings /> },
+          ]}
+        />
       </div>
     </main>
   );
