@@ -407,11 +407,10 @@ export default function ChatWidget() {
       {/* Chat window */}
       {open && (
         <div
-          className="cw-window fixed z-[59] flex flex-col overflow-hidden lg:bottom-24 bottom-[164px]"
+          className="cw-window fixed z-[59] flex flex-col overflow-hidden lg:bottom-24 bottom-[164px] h-[500px] max-h-[calc(100svh-180px)] lg:h-[580px] lg:max-h-[calc(100svh-116px)]"
           style={{
             right: 24,
             width: "min(400px, calc(100vw - 32px))",
-            height: "min(580px, calc(100vh - 120px))",
             borderRadius: 24,
             background: "#fff",
             boxShadow:

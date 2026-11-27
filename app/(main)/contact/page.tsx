@@ -7,6 +7,7 @@ import ContactInfo from "./_components/ContactInfo";
 import ContactForm from "./_components/ContactForm";
 import ContactFAQ from "./_components/ContactFAQ";
 import ContactMap from "./_components/ContactMap";
+import ScrollReveal from "../components/ScrollReveal";
 
 export const dynamic = "force-dynamic";
 
@@ -40,8 +41,11 @@ export default async function ContactPage() {
 
   return (
     <main className="max-w-6xl mx-auto px-4 sm:px-6 pb-20">
-      <ContactHero title={settings.heroTitle} description={settings.heroDescription} />
+      <ScrollReveal variant="fadeUp">
+        <ContactHero title={settings.heroTitle} description={settings.heroDescription} />
+      </ScrollReveal>
 
+      <ScrollReveal variant="fadeUp" delay={0.1}>
       <div className="grid lg:grid-cols-[1fr_380px] gap-8 mt-4">
         <div className="space-y-6">
           {settings.formEnabled && (
@@ -57,9 +61,14 @@ export default async function ContactPage() {
           <ContactInfo settings={settings} />
         </div>
       </div>
+      </ScrollReveal>
 
-      <ContactMap mapUrl={settings.mapUrl} />
-      <ContactFAQ faqs={faqs} />
+      <ScrollReveal variant="fadeUp" delay={0.05}>
+        <ContactMap mapUrl={settings.mapUrl} />
+      </ScrollReveal>
+      <ScrollReveal variant="fadeUp">
+        <ContactFAQ faqs={faqs} />
+      </ScrollReveal>
     </main>
   );
 }

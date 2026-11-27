@@ -18,7 +18,7 @@ export default function ProductCompletion({ form }: { form: ProductFormState }) 
     ["Main image", !!form.thumbnail, true],
     ["At least one size", form.sizes.length > 0, true],
     ["Gallery images", form.gallery.length > 0, false],
-    ["Size chart", form.sizeChart.some((r) => r.chest || r.length || r.shoulder), false],
+    ["Size chart", form.sizeChart.some((r) => r.chest || r.length || r.sleeve), false],
   ];
   const done = checks.filter(([, ok]) => ok).length;
   const pct = Math.round((done / checks.length) * 100);

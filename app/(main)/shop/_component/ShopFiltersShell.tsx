@@ -19,7 +19,7 @@ export default function ShopFiltersShell({ categories, totalCount, children }: P
       {/* Mobile overlay */}
       {drawerOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/60 z-[59] lg:hidden backdrop-blur-sm"
           onClick={() => setDrawerOpen(false)}
         />
       )}
@@ -27,14 +27,14 @@ export default function ShopFiltersShell({ categories, totalCount, children }: P
       {/* Sidebar — desktop sticky card / mobile drawer */}
       <aside
         className={[
-          "fixed lg:static inset-y-0 left-0 z-50 w-[86%] max-w-sm lg:w-auto",
+          "fixed lg:static inset-y-0 left-0 z-[60] w-[88%] max-w-sm lg:w-auto",
           "bg-bg lg:bg-transparent",
           "overflow-y-auto transition-transform duration-300 lg:transition-none lg:translate-x-0",
           drawerOpen ? "translate-x-0" : "-translate-x-full",
         ].join(" ")}
       >
         {/* mobile inner padding / desktop sticky card */}
-        <div className="p-5 lg:p-0 lg:sticky lg:top-24">
+        <div className="p-5 pb-28 lg:pb-0 lg:p-0 lg:sticky lg:top-24">
           <div className="lg:rounded-2xl lg:border lg:border-line lg:bg-surface lg:p-5">
             <Suspense>
               <ShopSidebarContent

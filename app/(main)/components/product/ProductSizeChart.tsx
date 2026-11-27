@@ -14,7 +14,7 @@ export default function ProductSizeChart({ chart }: ProductSizeChartProps) {
               <th scope="col">সাইজ</th>
               <th scope="col">বুক ({chart.unit})</th>
               <th scope="col">লম্বা ({chart.unit})</th>
-              <th scope="col">কাঁধ ({chart.unit})</th>
+              <th scope="col">Sleeve ({chart.unit})</th>
             </tr>
           </thead>
           <tbody>
@@ -25,7 +25,7 @@ export default function ProductSizeChart({ chart }: ProductSizeChartProps) {
                 </th>
                 <td>{row.chest}</td>
                 <td>{row.length}</td>
-                <td>{row.shoulder}</td>
+                <td>{row.sleeve}</td>
               </tr>
             ))}
           </tbody>

@@ -2,12 +2,14 @@ import Link from "next/link";
 import PageHeader from "../PageHeader";
 import Product from "./Product";
 import { getProducts } from "@/db/actions/product.action";
+import ScrollReveal from "../ScrollReveal";
 
 export default async function Products() {
   const products = await getProducts({ featured: true, limit: 8 });
 
   return (
     <section id="shop" className="max-w-7xl mx-auto px-4 sm:px-6 mt-24">
+      <ScrollReveal variant="fadeUp">
       <div className="flex items-end justify-between gap-4 mb-7">
         <PageHeader
           title="Products"
@@ -27,16 +29,18 @@ export default async function Products() {
           </span>
         </Link>
       </div>
+      </ScrollReveal>
 
       {products.length > 0 ? (
         <>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
             {products.map((product, index) => (
+              <ScrollReveal key={product._id} variant="fadeUp" delay={index * 0.06}>
               <Product
-                key={product._id}
                 product={product}
                 priority={index < 4}
               />
+              </ScrollReveal>
             ))}
           </div>
 

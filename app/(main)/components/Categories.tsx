@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { getCategories } from "@/db/actions/categories.action";
+import ScrollReveal from "./ScrollReveal";
 
 export default async function Categories() {
   const categories = await getCategories(4);
@@ -7,90 +9,69 @@ export default async function Categories() {
 
   return (
     <section id="cats" className="max-w-7xl mx-auto px-4 sm:px-6 mt-20">
-      <div className="flex items-end justify-between gap-4 mb-7">
-        <div>
-          <span className="inline-block text-xs font-semibold tracking-[0.2em] uppercase text-mute mb-2">
-            Collections
-          </span>
-          <h2 className="font-display font-extrabold text-3xl lg:text-4xl tracking-tight">
-            ক্যাটাগরি অনুযায়ী কিনুন
-          </h2>
+      <ScrollReveal variant="fadeUp">
+        <div className="flex items-end justify-between gap-4 mb-8">
+          <div>
+            <p className="text-xs font-semibold tracking-[0.18em] uppercase text-mute mb-2">
+              Collections
+            </p>
+            <h2 className="font-display font-bold text-2xl lg:text-3xl tracking-tight">
+              ক্যাটাগরি অনুযায়ী কিনুন
+            </h2>
+          </div>
+          <Link href="/categories" className="shrink-0 text-sm text-mute hover:text-ink transition-colors">
+            সব দেখুন →
+          </Link>
         </div>
-        <a
-          href="#shop"
-          className="group inline-flex items-center gap-1.5 shrink-0 text-sm font-medium text-mute hover:text-ink transition-colors"
-        >
-          সব দেখুন
-          <span
-            aria-hidden="true"
-            className="transition-transform group-hover:translate-x-0.5"
-          >
-            →
-          </span>
-        </a>
-      </div>
+      </ScrollReveal>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         {categories.map((cat, index) => (
-          <a
-            key={cat.id}
-            href="#shop"
-            data-filter={cat.filter}
-            aria-label={`${cat.name} — BDT ${cat.startingPrice.toLocaleString("en-US")} থেকে`}
-            className="group relative isolate overflow-hidden rounded-2xl aspect-[4/5] p-5 sm:p-6 flex flex-col justify-between text-white transition duration-300 hover:-translate-y-1 hover:shadow-2xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
-            style={{ background: cat.bgColor }}
-          >
-            <span
-              aria-hidden="true"
-              className="absolute -right-12 -top-12 -z-10 h-44 w-44 rounded-full opacity-15 transition-transform duration-500 group-hover:scale-125"
-              style={{ backgroundColor: cat.accentColor }}
-            />
-            <span
-              aria-hidden="true"
-              className="absolute -left-14 -bottom-20 -z-10 h-52 w-52 rounded-full border border-white/10 transition-transform duration-500 group-hover:scale-110"
-            />
-
-            <div className="flex items-start justify-between gap-2">
-              <span className="font-display font-extrabold text-5xl lg:text-6xl leading-none text-white/15">
-                {(index + 1).toLocaleString("bn-BD", {
-                  minimumIntegerDigits: 2,
-                })}
-              </span>
-              {cat.label && (
+          <ScrollReveal key={cat.id} variant="fadeUp" delay={index * 0.07}>
+            <Link
+              href={`/shop?cat=${encodeURIComponent(cat.filter)}`}
+              className="group flex flex-col p-5 sm:p-6 rounded-2xl bg-surface border border-line hover:border-transparent hover:shadow-xl transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink h-full"
+            >
+              {/* top — color circle + index number */}
+              <div className="flex items-center justify-between mb-6">
                 <span
-                  className="rounded-full bg-white/10 backdrop-blur px-2.5 py-1 text-[10px] sm:text-[11px] font-semibold tracking-wider uppercase"
-                  style={{ color: cat.accentColor }}
-                >
-                  {cat.label}
+                  className="w-11 h-11 rounded-full ring-4 ring-white/60 transition-transform duration-300 group-hover:scale-110"
+                  style={{ backgroundColor: cat.bgColor }}
+                  aria-hidden="true"
+                />
+                <span className="font-display font-extrabold text-3xl text-ink/8 select-none">
+                  {String(index + 1).padStart(2, "0")}
                 </span>
-              )}
-            </div>
+              </div>
 
-            <div>
-              <span
-                aria-hidden="true"
-                className="block h-0.5 w-8 rounded-full mb-3 transition-all duration-300 group-hover:w-14"
-                style={{ backgroundColor: cat.accentColor }}
-              />
-              <b className="block font-display text-lg sm:text-xl lg:text-2xl leading-tight">
-                {cat.name}
-              </b>
-              {cat.startingPrice > 0 && (
-                <span className="block mt-1 text-sm opacity-75">
-                  BDT {cat.startingPrice.toLocaleString("en-US")} থেকে
+              {/* category name */}
+              <div className="flex-1">
+                {cat.label && (
+                  <p className="text-[10px] font-semibold tracking-widest uppercase text-mute mb-1.5">
+                    {cat.label}
+                  </p>
+                )}
+                <p className="font-display font-bold text-lg sm:text-xl lg:text-2xl text-ink leading-snug">
+                  {cat.name}
+                </p>
+              </div>
+
+              {/* bottom row */}
+              <div className="mt-5 pt-4 border-t border-line flex items-center justify-between">
+                <span className="text-xs sm:text-sm text-mute">
+                  {cat.startingPrice > 0
+                    ? `৳${cat.startingPrice.toLocaleString("en-US")} থেকে`
+                    : "দেখুন"}
                 </span>
-              )}
-              <span className="mt-4 inline-flex items-center gap-2 text-xs sm:text-sm font-semibold">
-                কালেকশন দেখুন
                 <span
                   aria-hidden="true"
-                  className="grid place-items-center h-7 w-7 rounded-full bg-white text-gray-900 transition-transform duration-300 group-hover:translate-x-1"
+                  className="text-sm font-semibold text-ink transition-transform duration-200 group-hover:translate-x-1 inline-block"
                 >
                   →
                 </span>
-              </span>
-            </div>
-          </a>
+              </div>
+            </Link>
+          </ScrollReveal>
         ))}
       </div>
     </section>

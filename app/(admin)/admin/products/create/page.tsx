@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { guardPage } from "@/app/utils/authz";
 import { getLowStockThreshold } from "@/db/settings.server";
 import AdminTopbar from "../../../_components/AdminTopbar";
-import AdminBreadcrumb from "../../../_components/AdminBreadcrumb";
 import ProductForm from "../_components/form/ProductForm";
 import ProductFormHeader from "../_components/form/ProductFormHeader";
 import { loadCategoryOptions } from "../_lib/categoryOptions";
@@ -30,13 +29,6 @@ export default async function CreateProductPage() {
         ]}
       />
       <main className="px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-32 max-w-[1400px]">
-        <AdminBreadcrumb
-          items={[
-            { label: "Dashboard", href: "/admin" },
-            { label: "Products", href: "/admin/products" },
-            { label: "Create" },
-          ]}
-        />
         <ProductFormHeader
           crumb="Create"
           title="Create Product"

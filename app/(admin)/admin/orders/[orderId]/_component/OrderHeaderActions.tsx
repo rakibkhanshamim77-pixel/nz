@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import UpdateStatusModal from "./UpdateStatusModal";
 
 interface Props {
@@ -23,11 +24,11 @@ export default function OrderHeaderActions({
   return (
     <>
       <div className="flex items-center gap-2 flex-wrap">
-        <button
-          type="button"
-          onClick={() => window.print()}
-          className="btn-ghost !h-9 !px-3 text-sm"
-          aria-label="Print invoice"
+        <Link
+          href={`/invoice/${orderNumber}`}
+          target="_blank"
+          className="btn-ghost !h-9 !px-3 text-sm inline-flex items-center gap-1.5"
+          aria-label="Download invoice"
         >
           <svg
             className="w-4 h-4"
@@ -36,10 +37,10 @@ export default function OrderHeaderActions({
             strokeWidth={2}
             viewBox="0 0 24 24"
           >
-            <path d="M6 9V3h12v6M6 18H4v-7h16v7h-2M8 14h8v7H8z" />
+            <path d="M12 16l-4-4h3V4h2v8h3l-4 4zM4 18h16v2H4z" fill="currentColor" stroke="none"/>
           </svg>
           <span className="hidden sm:inline">Invoice</span>
-        </button>
+        </Link>
         <button
           type="button"
           onClick={() => setModalOpen(true)}

@@ -29,19 +29,33 @@ export default function OrderSuccessPage({ searchParams }: Props) {
       <p className="text-[var(--mute)] mb-8">
         আপনার অর্ডারটি গ্রহণ করা হয়েছে। শীঘ্রই কনফার্মেশন পাবেন।
       </p>
-      <div className="flex flex-col sm:flex-row gap-3 justify-center">
-        <Link
-          href="/"
-          className="inline-flex h-12 items-center justify-center px-8 rounded-full border border-[var(--line)] font-semibold hover:bg-[var(--soft)] transition-colors"
-        >
-          হোমে যান
-        </Link>
-        <Link
-          href="/shop"
-          className="inline-flex h-12 items-center justify-center px-8 rounded-full bg-[var(--ink)] text-[var(--bg)] font-semibold hover:opacity-90 transition-opacity"
-        >
-          শপিং চালিয়ে যান
-        </Link>
+      <div className="flex flex-col gap-3 justify-center">
+        {orderNumber && (
+          <Link
+            href={`/invoice/${orderNumber}`}
+            target="_blank"
+            className="inline-flex h-12 items-center justify-center gap-2 px-8 rounded-full bg-[var(--ink)] text-[var(--bg)] font-semibold hover:opacity-90 transition-opacity"
+          >
+            <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 16l-4-4h3V4h2v8h3l-4 4zM4 18h16v2H4z"/>
+            </svg>
+            ইনভয়েস ডাউনলোড করুন
+          </Link>
+        )}
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <Link
+            href="/"
+            className="inline-flex h-12 items-center justify-center px-8 rounded-full border border-[var(--line)] font-semibold hover:bg-[var(--soft)] transition-colors"
+          >
+            হোমে যান
+          </Link>
+          <Link
+            href="/shop"
+            className="inline-flex h-12 items-center justify-center px-8 rounded-full border border-[var(--line)] font-semibold hover:bg-[var(--soft)] transition-colors"
+          >
+            শপিং চালিয়ে যান
+          </Link>
+        </div>
       </div>
     </main>
   );

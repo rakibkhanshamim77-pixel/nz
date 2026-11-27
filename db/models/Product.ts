@@ -122,7 +122,7 @@ const ProductSchema = new Schema<IProduct>(
             size: { type: String, required: true, trim: true, uppercase: true },
             chest: { type: Number, min: 0 },
             length: { type: Number, min: 0 },
-            shoulder: { type: Number, min: 0 },
+            sleeve: { type: Number, min: 0 },
           },
           { _id: false },
         ),

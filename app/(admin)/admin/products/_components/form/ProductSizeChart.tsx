@@ -14,7 +14,7 @@ interface Props {
 const MEASURES = [
   { key: "chest", label: "Chest (in)" },
   { key: "length", label: "Length (in)" },
-  { key: "shoulder", label: "Shoulder (in)" },
+  { key: "sleeve", label: "Sleeve (in)" },
 ] as const;
 
 const measureInput = (v: string) => v.replace(/[^\d.]/g, "").replace(/(\..*)\./g, "$1").slice(0, 6);
@@ -25,7 +25,7 @@ export default function ProductSizeChart({ rows, sizes, error, onChange }: Props
 
   const matchSizes = () => {
     const byName = new Map(rows.map((r) => [r.size, r]));
-    onChange(sizes.map((s) => byName.get(s) ?? { id: uid("row"), size: s, chest: "", length: "", shoulder: "" }));
+    onChange(sizes.map((s) => byName.get(s) ?? { id: uid("row"), size: s, chest: "", length: "", sleeve: "" }));
   };
 
   const full = rows.length >= PRODUCT_LIMITS.chartRowsMax;
@@ -92,7 +92,7 @@ export default function ProductSizeChart({ rows, sizes, error, onChange }: Props
         type="button"
         className="add-row mt-3"
         disabled={full}
-        onClick={() => onChange([...rows, { id: uid("row"), size: "", chest: "", length: "", shoulder: "" }])}
+        onClick={() => onChange([...rows, { id: uid("row"), size: "", chest: "", length: "", sleeve: "" }])}
       >
         <PlusIcon className="w-4 h-4" />
         {full ? `Maximum ${PRODUCT_LIMITS.chartRowsMax} rows` : "Add Row"}

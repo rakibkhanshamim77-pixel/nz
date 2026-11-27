@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useFormState, useFormStatus } from "react-dom";
+import { motion } from "framer-motion";
 import {
   subscribeNewsletter,
   type NewsletterState,
@@ -73,7 +74,13 @@ export default function NewsLetter({
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 mt-24">
-      <div className="rounded-3xl bg-soft p-8 lg:p-12 grid lg:grid-cols-2 gap-6 items-center">
+      <motion.div
+        initial={{ opacity: 0, y: 36 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-60px" }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="rounded-3xl bg-soft p-8 lg:p-12 grid lg:grid-cols-2 gap-6 items-center"
+      >
         <div>
           <h2 className="font-display font-extrabold text-3xl mb-2">
             {title}
@@ -140,7 +147,7 @@ export default function NewsLetter({
             )}
           </div>
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }

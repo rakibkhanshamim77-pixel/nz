@@ -202,7 +202,7 @@ function readSizeChart(p: RawDoc): ProductSizeChartData | null {
         size,
         chest: cell(r.chest),
         length: cell(r.length),
-        shoulder: cell(r.shoulder),
+        sleeve: cell(r.sleeve ?? r.shoulder),
       };
     })
     .filter((r): r is SizeChartRow => r !== null);

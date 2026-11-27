@@ -29,7 +29,7 @@ export interface SizeChartRowInput {
   size: string;
   chest: string;
   length: string;
-  shoulder: string;
+  sleeve: string;
 }
 
 /** Shape sent from the product form to the create/update server actions. */
@@ -60,7 +60,7 @@ export interface CleanSizeChartRow {
   size: string;
   chest?: number;
   length?: number;
-  shoulder?: number;
+  sleeve?: number;
 }
 
 export interface CleanProduct {
@@ -193,18 +193,18 @@ export function validateProduct(raw: unknown, now: Date = new Date()): ProductVa
       const size = text(row.size).toUpperCase();
       const chest = parseMeasure(row.chest);
       const length = parseMeasure(row.length);
-      const shoulder = parseMeasure(row.shoulder);
-      const empty = !size && chest === undefined && length === undefined && shoulder === undefined;
+      const sleeve = parseMeasure(row.sleeve);
+      const empty = !size && chest === undefined && length === undefined && sleeve === undefined;
       if (empty) continue;
       if (!SIZE_PATTERN.test(size)) {
         errors.sizeChart = "Every size chart row needs a size";
         break;
       }
-      if (chest === null || length === null || shoulder === null) {
+      if (chest === null || length === null || sleeve === null) {
         errors.sizeChart = `Measurements must be numbers up to ${L.measureMax} (e.g. 40 or 40.5)`;
         break;
       }
-      sizeChart.push({ size, chest, length, shoulder });
+      sizeChart.push({ size, chest, length, sleeve });
     }
     const chartSizes = sizeChart.map((r) => r.size);
     if (!errors.sizeChart && new Set(chartSizes).size !== chartSizes.length)

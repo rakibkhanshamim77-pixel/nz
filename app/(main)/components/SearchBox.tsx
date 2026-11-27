@@ -67,12 +67,29 @@ export default function SearchBox() {
 
   return (
     <>
-      {/* Trigger button (collapsed search bar in header) */}
+      <style>{`
+        @keyframes sb-enter {
+          from { opacity: 0; transform: scale(0.96) translateY(-8px); }
+          to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+      `}</style>
+
+      {/* Mobile icon-only trigger */}
       <button
         type="button"
         onClick={() => setOpen(true)}
         aria-label="পণ্য খুঁজুন"
-        className="hidden md:flex flex-1 max-w-sm ml-auto items-center gap-2 h-10 px-4 rounded-full bg-soft text-left cursor-text"
+        className="md:hidden flex items-center justify-center w-10 h-10 rounded-full hover:bg-soft transition-colors text-mute hover:text-ink"
+      >
+        <SearchIcon className="w-5 h-5" />
+      </button>
+
+      {/* Desktop pill trigger */}
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label="পণ্য খুঁজুন"
+        className="hidden md:flex flex-1 max-w-sm ml-auto items-center gap-2 h-10 px-4 rounded-full bg-soft text-left cursor-text hover:bg-line transition-colors"
       >
         <SearchIcon />
         <span className="flex-1 text-sm text-mute truncate">
@@ -85,7 +102,7 @@ export default function SearchBox() {
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 z-50 bg-ink/40 backdrop-blur-sm"
+            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md"
             onClick={close}
             aria-hidden="true"
           />
@@ -94,12 +111,12 @@ export default function SearchBox() {
           <div
             role="dialog"
             aria-label="পণ্য সার্চ"
-            className="fixed left-1/2 top-24 z-50 w-full max-w-lg -translate-x-1/2 px-4"
+            className="fixed left-1/2 top-[15%] z-50 w-full max-w-lg -translate-x-1/2 px-4 sm:px-0"
           >
-            <div className="bg-bg rounded-2xl shadow-[var(--shadow)] overflow-hidden border border-line">
+            <div className="bg-bg rounded-2xl shadow-2xl overflow-hidden border border-line" style={{ animation: "sb-enter 0.2s cubic-bezier(0.16,1,0.3,1) forwards" }}>
               {/* Input row */}
-              <div className="flex items-center gap-3 px-4 py-3 border-b border-line">
-                <SearchIcon className="w-4 h-4 shrink-0 text-wine" />
+              <div className="flex items-center gap-3 px-4 py-3.5 border-b border-line">
+                <SearchIcon className="w-5 h-5 shrink-0 text-wine" />
                 <input
                   ref={inputRef}
                   value={query}
@@ -113,15 +130,24 @@ export default function SearchBox() {
                     type="button"
                     onClick={() => { setQuery(""); setResults([]); inputRef.current?.focus(); }}
                     aria-label="মুছুন"
-                    className="shrink-0 text-mute hover:text-ink transition-colors"
+                    className="shrink-0 text-mute hover:text-ink transition-colors p-1 rounded-md hover:bg-soft"
                   >
                     <CloseIcon />
                   </button>
                 )}
+                {/* Close modal button */}
+                <button
+                  type="button"
+                  onClick={close}
+                  aria-label="বন্ধ করুন"
+                  className="shrink-0 flex items-center justify-center w-8 h-8 rounded-lg bg-soft hover:bg-line text-mute hover:text-ink transition-colors border border-line/60 ml-1"
+                >
+                  <CloseIcon />
+                </button>
               </div>
 
               {/* Results */}
-              <div className="max-h-80 overflow-y-auto">
+              <div className="max-h-80 sm:max-h-96 overflow-y-auto" style={{ maxHeight: "min(400px, calc(80vh - 160px))" }}>
                 {loading && (
                   <div className="flex items-center justify-center py-8 text-sm text-mute gap-2">
                     <span className="inline-block w-4 h-4 border-2 border-wine border-t-transparent rounded-full animate-spin" />

@@ -267,7 +267,7 @@ export default function ProductForm({ mode, categories, initial, lowStockThresho
       name: f.name, sku: f.sku, category: f.category, description: f.description,
       regularPrice: f.regularPrice, salePrice: f.salePrice, stock: f.stock, images,
       colors: f.colors, colorImages, sizes: f.sizes, features: f.features,
-      sizeChart: f.sizeChart.map(({ size, chest, length, shoulder }) => ({ size, chest, length, shoulder })),
+      sizeChart: f.sizeChart.map(({ size, chest, length, sleeve }) => ({ size, chest, length, sleeve })),
       status: f.status,
       publishAt: f.status === "scheduled" ? toPublishIso(f.publishDate, f.publishTime) : "",
       isFeatured: f.isFeatured,

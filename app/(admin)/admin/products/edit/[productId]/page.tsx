@@ -7,7 +7,6 @@ import { guardPage } from "@/app/utils/authz";
 import { getLowStockThreshold } from "@/db/settings.server";
 import { productStatusOf } from "@/db/utils/productVisibility";
 import AdminTopbar from "../../../../_components/AdminTopbar";
-import AdminBreadcrumb from "../../../../_components/AdminBreadcrumb";
 import ProductForm from "../../_components/form/ProductForm";
 import ProductFormHeader from "../../_components/form/ProductFormHeader";
 import type { ProductFormInitial } from "../../_components/form/formTypes";
@@ -55,7 +54,7 @@ async function loadProduct(productId: string): Promise<ProductFormInitial | null
       size: r.size,
       chest: measure(r.chest),
       length: measure(r.length),
-      shoulder: measure(r.shoulder),
+      sleeve: measure(r.sleeve),
     })),
     isActive: p.isActive !== false,
     isFeatured: !!p.isFeatured,
@@ -104,13 +103,6 @@ export default async function EditProductPage({ params }: { params: { productId:
         ]}
       />
       <main className="px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-32 max-w-[1400px]">
-        <AdminBreadcrumb
-          items={[
-            { label: "Dashboard", href: "/admin" },
-            { label: "Products", href: "/admin/products" },
-            { label: product ? product.name : "Edit" },
-          ]}
-        />
         {product ? (
           <>
             <ProductFormHeader

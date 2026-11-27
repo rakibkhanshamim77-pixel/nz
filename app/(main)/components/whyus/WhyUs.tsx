@@ -1,7 +1,10 @@
+import ScrollReveal from "../ScrollReveal";
+
 export default function WhyUs() {
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 mt-24">
       {/* Heading */}
+      <ScrollReveal variant="fadeUp">
       <div className="grid lg:grid-cols-2 gap-4 lg:gap-12 items-end mb-10">
         <div>
           <span className="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.2em] uppercase text-mute mb-3">
@@ -18,10 +21,12 @@ export default function WhyUs() {
           আমরা এই তিনটি প্রতিশ্রুতি রাখি।
         </p>
       </div>
+      </ScrollReveal>
 
       {/* Cards */}
       <div className="grid md:grid-cols-3 gap-4 lg:gap-5">
         {/* 01 — Fabric */}
+        <ScrollReveal variant="fadeUp" delay={0}>
         <article className="group relative isolate overflow-hidden rounded-3xl border border-line bg-soft p-7 lg:p-8 flex flex-col transition duration-300 hover:-translate-y-1 hover:shadow-xl">
           <span
             aria-hidden="true"
@@ -60,8 +65,10 @@ export default function WhyUs() {
             <b className="font-display text-lg">২২০ GSM</b>
           </div>
         </article>
+        </ScrollReveal>
 
         {/* 02 — Fit (highlighted) */}
+        <ScrollReveal variant="fadeUp" delay={0.1}>
         <article className="group relative isolate overflow-hidden rounded-3xl bg-ink text-bg p-7 lg:p-8 flex flex-col shadow-xl transition duration-300 hover:-translate-y-1 hover:shadow-2xl md:-translate-y-3 md:hover:-translate-y-4">
           <span
             aria-hidden="true"
@@ -104,8 +111,10 @@ export default function WhyUs() {
             <b className="font-display text-lg">বুক · দৈর্ঘ্য · কাঁধ</b>
           </div>
         </article>
+        </ScrollReveal>
 
         {/* 03 — Exchange */}
+        <ScrollReveal variant="fadeUp" delay={0.2}>
         <article className="group relative isolate overflow-hidden rounded-3xl border border-line bg-soft p-7 lg:p-8 flex flex-col transition duration-300 hover:-translate-y-1 hover:shadow-xl">
           <span
             aria-hidden="true"
@@ -143,6 +152,7 @@ export default function WhyUs() {
             <b className="font-display text-lg">BDT 0</b>
           </div>
         </article>
+        </ScrollReveal>
       </div>
     </section>
   );

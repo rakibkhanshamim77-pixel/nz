@@ -21,7 +21,7 @@ export interface SizeChartRow {
   size: string;
   chest: number | string;
   length: number | string;
-  shoulder: number | string;
+  sleeve: number | string;
 }
 
 export interface ProductSizeChartData {

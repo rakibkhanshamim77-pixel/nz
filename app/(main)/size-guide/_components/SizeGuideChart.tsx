@@ -46,10 +46,9 @@ const DATA: Record<Category, SizeRow[]> = {
 };
 
 const COLUMNS = [
-  { key: "chest",    label: "বুক (সেমি)" },
-  { key: "shoulder", label: "কাঁধ (সেমি)" },
-  { key: "length",   label: "দৈর্ঘ্য (সেমি)" },
-  { key: "sleeve",   label: "হাতা (সেমি)" },
+  { key: "chest",  label: "বুক (সেমি)" },
+  { key: "length", label: "দৈর্ঘ্য (সেমি)" },
+  { key: "sleeve", label: "Sleeve (সেমি)" },
 ];
 
 export default function SizeGuideChart() {

@@ -4,9 +4,11 @@ import {
   ShieldCheck,
   Van,
 } from "lucide-react";
+import ScrollReveal from "./ScrollReveal";
 export default function TrustStrip() {
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 mt-16">
+      <ScrollReveal variant="fadeUp" delay={0.1}>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 py-6 border-y border-line text-sm">
         <div className="flex items-center gap-3">
           <span className="w-11 h-11 rounded-full bg-soft grid place-items-center">
@@ -45,6 +47,7 @@ export default function TrustStrip() {
           </span>
         </div>
       </div>
+      </ScrollReveal>
     </section>
   );
 }

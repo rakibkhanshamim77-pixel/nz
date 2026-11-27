@@ -4,6 +4,7 @@ export const revalidate = 60;
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getContent } from "@/db/content.server";
+import ScrollReveal from "../components/ScrollReveal";
 
 export const metadata: Metadata = {
   title: "আমাদের সম্পর্কে – Neeshanz",
@@ -197,6 +198,7 @@ export default async function AboutPage() {
             borderBottom: "1px solid var(--line)",
           }}
         >
+          <ScrollReveal variant="fadeUp">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10">
             <div
               className="grid grid-cols-3 divide-x"
@@ -220,12 +222,14 @@ export default async function AboutPage() {
               ))}
             </div>
           </div>
+          </ScrollReveal>
         </section>
       )}
 
       {/* ══ 3. STORY ══════════════════════════════════════════════ */}
       {c.show_story && (
         <section className="max-w-5xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
+          <ScrollReveal variant="fadeUp">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <div
@@ -312,6 +316,7 @@ export default async function AboutPage() {
               </div>
             </div>
           </div>
+          </ScrollReveal>
         </section>
       )}
 
@@ -325,6 +330,7 @@ export default async function AboutPage() {
           }}
         >
           <div className="max-w-5xl mx-auto px-4 sm:px-6 py-16 sm:py-20">
+            <ScrollReveal variant="fadeUp">
             <div className="text-center mb-12">
               <div
                 className="inline-block w-10 h-1 rounded-full mb-5"
@@ -337,6 +343,7 @@ export default async function AboutPage() {
                 {c.milestonesTitle}
               </h2>
             </div>
+            </ScrollReveal>
             <div className="relative">
               <div
                 aria-hidden
@@ -437,6 +444,7 @@ export default async function AboutPage() {
       {/* ══ 5. MISSION QUOTE — always dark ═══════════════════════ */}
       {c.show_missionQuote && (
         <section style={{ background: DARK }}>
+          <ScrollReveal variant="fadeIn">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 py-16 sm:py-20 text-center">
             <svg
               aria-hidden
@@ -460,6 +468,7 @@ export default async function AboutPage() {
               — {c.missionAuthor}
             </p>
           </div>
+          </ScrollReveal>
         </section>
       )}
 
@@ -473,6 +482,7 @@ export default async function AboutPage() {
           }}
         >
           <div className="max-w-5xl mx-auto px-4 sm:px-6 py-16 sm:py-20">
+            <ScrollReveal variant="fadeUp">
             <div className="text-center mb-12">
               <div
                 className="inline-block w-10 h-1 rounded-full mb-5"
@@ -485,6 +495,7 @@ export default async function AboutPage() {
                 {c.processTitle}
               </h2>
             </div>
+            </ScrollReveal>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 relative">
               <div
                 aria-hidden
@@ -531,6 +542,7 @@ export default async function AboutPage() {
       {/* ══ 7. VALUES ════════════════════════════════════════════ */}
       {c.show_values && (
         <section className="max-w-5xl mx-auto px-4 sm:px-6 py-16 sm:py-20">
+          <ScrollReveal variant="fadeUp">
           <div className="text-center mb-12">
             <div
               className="inline-block w-10 h-1 rounded-full mb-5"
@@ -543,6 +555,7 @@ export default async function AboutPage() {
               আমাদের মূল্যবোধ
             </h2>
           </div>
+          </ScrollReveal>
           <div className="grid sm:grid-cols-3 gap-6">
             {values.map((v, i) => (
               <div
@@ -587,6 +600,7 @@ export default async function AboutPage() {
           }}
         >
           <div className="max-w-5xl mx-auto px-4 sm:px-6 py-16 sm:py-20">
+            <ScrollReveal variant="fadeUp">
             <div className="text-center mb-12">
               <div
                 className="inline-block w-10 h-1 rounded-full mb-5"
@@ -599,6 +613,7 @@ export default async function AboutPage() {
                 {c.whyTitle}
               </h2>
             </div>
+            </ScrollReveal>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
               {whys.map((w, i) => (
                 <div
@@ -632,6 +647,7 @@ export default async function AboutPage() {
       {/* ══ 9. TESTIMONIALS ═════════════════════════════════════ */}
       {c.show_testimonials && (
         <section className="max-w-5xl mx-auto px-4 sm:px-6 py-16 sm:py-20">
+          <ScrollReveal variant="fadeUp">
           <div className="text-center mb-12">
             <div
               className="inline-block w-10 h-1 rounded-full mb-5"
@@ -644,6 +660,7 @@ export default async function AboutPage() {
               {c.testimonialsTitle}
             </h2>
           </div>
+          </ScrollReveal>
           <div className="grid sm:grid-cols-3 gap-6">
             {reviews.map((r, i) => (
               <div
@@ -698,6 +715,7 @@ export default async function AboutPage() {
             borderBottom: "1px solid var(--line)",
           }}
         >
+          <ScrollReveal variant="fadeUp">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 py-16 sm:py-20">
             <div className="text-center mb-10">
               <div
@@ -749,12 +767,14 @@ export default async function AboutPage() {
               </div>
             </div>
           </div>
+          </ScrollReveal>
         </section>
       )}
 
       {/* ══ 11. MINI FAQ ════════════════════════════════════════ */}
       {c.show_faq && (
         <section className="max-w-3xl mx-auto px-4 sm:px-6 py-16 sm:py-20">
+          <ScrollReveal variant="fadeUp">
           <div className="text-center mb-12">
             <div
               className="inline-block w-10 h-1 rounded-full mb-5"
@@ -767,6 +787,7 @@ export default async function AboutPage() {
               {c.faqTitle}
             </h2>
           </div>
+          </ScrollReveal>
           <div className="space-y-3">
             {faqs.map((faq, i) => (
               <details
@@ -821,6 +842,7 @@ export default async function AboutPage() {
       {/* ══ 12. COMMUNITY — always dark ═══════════════════════════ */}
       {c.show_community && (
         <section style={{ background: DARK }}>
+          <ScrollReveal variant="fadeUp">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 py-16 sm:py-20">
             <div className="grid sm:grid-cols-2 gap-10 items-center">
               <div>
@@ -912,12 +934,14 @@ export default async function AboutPage() {
               </div>
             </div>
           </div>
+          </ScrollReveal>
         </section>
       )}
 
       {/* ══ 13. CLOSING CTA ═════════════════════════════════════ */}
       {c.show_closing && (
         <section className="max-w-4xl mx-auto px-4 sm:px-6 py-16 sm:py-24 text-center">
+          <ScrollReveal variant="fadeUp">
           <div
             className="inline-block w-10 h-1 rounded-full mb-6"
             style={{ background: "var(--ink)" }}
@@ -959,6 +983,7 @@ export default async function AboutPage() {
               আমাদের সাথে যোগাযোগ করুন
             </Link>
           </div>
+          </ScrollReveal>
         </section>
       )}
     </main>

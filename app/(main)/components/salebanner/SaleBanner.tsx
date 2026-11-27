@@ -1,5 +1,6 @@
 import { getContent } from "@/db/content.server";
 import SaleBannerCountdown from "./SaleBannerCountdown";
+import ScrollReveal from "../ScrollReveal";
 
 export default async function SaleBanner() {
   const data = await getContent("sale-banner");
@@ -10,6 +11,7 @@ export default async function SaleBanner() {
 
   return (
     <section id="sale" className="max-w-7xl mx-auto px-4 sm:px-6 mt-16 sm:mt-24">
+      <ScrollReveal variant="zoom">
       <div
         className="relative overflow-hidden rounded-2xl sm:rounded-3xl p-6 sm:p-10 lg:p-14 text-white"
         style={{
@@ -74,6 +76,7 @@ export default async function SaleBanner() {
           </svg>
         </div>
       </div>
+      </ScrollReveal>
     </section>
   );
 }

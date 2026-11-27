@@ -172,12 +172,24 @@ export default function TrackResult({ order }: Props) {
             </div>
           </dl>
 
-          <Link
-            href="/"
-            className="mt-5 min-h-12 px-4 py-3 rounded-2xl border border-line font-semibold text-center hover:bg-soft flex items-center justify-center transition-colors"
-          >
-            এই অর্ডার নিয়ে সাহায্য নিন
-          </Link>
+          <div className="mt-5 flex flex-col gap-2">
+            <Link
+              href={`/invoice/${order.orderNumber}`}
+              target="_blank"
+              className="min-h-12 px-4 py-3 rounded-2xl bg-ink text-bg font-semibold text-center hover:opacity-90 flex items-center justify-center gap-2 transition-opacity"
+            >
+              <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 16l-4-4h3V4h2v8h3l-4 4zM4 18h16v2H4z" fill="currentColor" stroke="none"/>
+              </svg>
+              ইনভয়েস ডাউনলোড করুন
+            </Link>
+            <Link
+              href="/"
+              className="min-h-12 px-4 py-3 rounded-2xl border border-line font-semibold text-center hover:bg-soft flex items-center justify-center transition-colors"
+            >
+              এই অর্ডার নিয়ে সাহায্য নিন
+            </Link>
+          </div>
         </aside>
       </div>
     </div>
